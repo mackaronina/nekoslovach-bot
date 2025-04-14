@@ -1,0 +1,4 @@
+Flask==2.3.2
+pyTelegramBotAPI==4.22.0
+schedule==1.2.1
+groq==0.13.0
