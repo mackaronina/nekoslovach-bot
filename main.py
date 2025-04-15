@@ -49,10 +49,13 @@ def msg_generate(message):
 
 @bot.message_handler(func=lambda message: True, content_types=['photo'])
 def msg_photo(message):
-    if message.from_user.id == ME_CHATID:
-        post_image(message.photo[-1].file_id, ME_CHATID)
-    else:
-        post_image(message.photo[-1].file_id)
+    try:
+        if message.from_user.id == ME_CHATID:
+            post_image(message.photo[-1].file_id, ME_CHATID)
+        else:
+            post_image(message.photo[-1].file_id)
+    except Exception as e:
+        bot.reply_to(message, str(e))
 
 
 def cur_date():
