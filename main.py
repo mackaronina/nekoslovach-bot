@@ -115,7 +115,7 @@ def generate_poll(title):
 схеме: {json.dumps(PollModel.model_json_schema(), indent=2)}'}
         ],
         response_format={"type": "json_object"},
-        model="meta-llama/llama-4-maverick-17b-128e-instruct",
+        model=MODEL_NAME,
         temperature=TEMPERATURE
     )
     return PollModel.model_validate_json(chat_completion.choices[0].message.content)
@@ -147,7 +147,7 @@ def generate_new_from_img(file_id):
              ]}
         ],
         response_format={"type": "json_object"},
-        model="meta-llama/llama-4-maverick-17b-128e-instruct",
+        model=MODEL_NAME,
         temperature=TEMPERATURE
     )
     return NewModel.model_validate_json(chat_completion.choices[0].message.content)
@@ -165,7 +165,7 @@ def generate_new():
 новости. JSON должен соответствовать этой схеме: {json.dumps(NewModel.model_json_schema(), indent=2)}'}
         ],
         response_format={"type": "json_object"},
-        model="meta-llama/llama-4-maverick-17b-128e-instruct",
+        model=MODEL_NAME,
         temperature=TEMPERATURE
     )
     return NewModel.model_validate_json(chat_completion.choices[0].message.content), new_tag
