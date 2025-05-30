@@ -1,69 +1,36 @@
-import base64
+import asyncio
 import json
+import logging
 import random
 import time
 import traceback
 from datetime import datetime
-from io import StringIO
-from threading import Thread
-from typing import List
+from typing import List, Tuple
 
-import schedule
-import telebot
-from flask import Flask, request
-from groq import Groq, BaseModel
-from telebot import apihelper
-from telebot.types import InputPollOption
+import uvicorn
+from aiogram import Bot, Dispatcher, F
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.filters.command import Command
+from aiogram.types import Message, ErrorEvent, BufferedInputFile, InputPollOption, Update, InlineKeyboardButton, \
+    CallbackQuery, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from fastapi import FastAPI
+from fastapi.requests import Request
+from fastapi.responses import HTMLResponse
+from openai import AsyncOpenAI, BaseModel
 
 from config import *
 
-neuro = Groq(api_key=GROQ_KEY)
+ai_client = AsyncOpenAI(base_url="https://api.groq.com/openai/v1", api_key=GROQ_KEY)
 
+logging.basicConfig(level=logging.INFO)
 
-class ExHandler(telebot.ExceptionHandler):
-    def handle(self, exc):
-        sio = StringIO(traceback.format_exc())
-        sio.name = 'log.txt'
-        sio.seek(0)
-        bot.send_document(ME_CHATID, sio)
-        return True
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
+dp = Dispatcher()
 
-
-bot = telebot.TeleBot(BOT_TOKEN, threaded=True, num_threads=10, parse_mode='HTML', exception_handler=ExHandler())
-apihelper.RETRY_ON_ERROR = True
-app = Flask(__name__)
-bot.remove_webhook()
-bot.set_webhook(url=f'{APP_URL}/{BOT_TOKEN}')
-
-
-@bot.message_handler(commands=["start"])
-def msg_start(message):
-    bot.reply_to(message, "Скинь мне фото и оно станет новостью")
-
-
-@bot.message_handler(commands=["generate"])
-def msg_generate(message):
-    if message.from_user.id == ME_CHATID:
-        job_post_news(message.chat.id)
-
-
-@bot.message_handler(func=lambda message: True, content_types=['photo'])
-def msg_photo(message):
-    try:
-        if message.from_user.id == ME_CHATID:
-            post_image(message.photo[-1].file_id, ME_CHATID)
-        else:
-            post_image(message.photo[-1].file_id)
-    except Exception as e:
-        bot.reply_to(message, str(e))
-
-
-def cur_date():
-    return datetime.fromtimestamp(time.time() + TIMESTAMP)
-
-
-def news_text(new, new_tag):
-    return f"⚡️<b>{new.title}</b>\n\n{new.text}\n\n#{new_tag.replace(' ', '_').replace('-', '_')}"
+app = FastAPI()
 
 
 class NewModel(BaseModel):
@@ -76,56 +43,88 @@ class PollModel(BaseModel):
     options: List[str]
 
 
-def post_image(file_id, channel=CHANNEL_CHATID):
-    # пост с изображением в канал
-    new = generate_new_from_img(file_id)
-    bot.send_photo(channel, file_id, caption=news_text(new, 'предложка'))
-    poll = generate_poll(new.title)
-    bot.send_poll(
-        channel,
+@dp.message(Command("start"))
+async def msg_start(message: Message) -> None:
+    await message.reply("Скинь мне фото или текст и я сделаю из них новость. Славься Некославия!")
+
+
+@dp.error()
+async def error_handler(event: ErrorEvent) -> None:
+    await bot.send_document(
+        REPORT_CHATID,
+        BufferedInputFile(traceback.format_exc().encode('utf8'), filename="error.txt"),
+        caption=str(event.exception)
+    )
+
+
+@dp.message(F.photo, F.caption, F.chat.type == "private")
+@dp.message(F.photo, F.chat.type == "private")
+@dp.message(F.text, F.chat.type == "private")
+async def msg_private(message: Message) -> None:
+    try:
+        await create_new_and_poll(message)
+    except Exception as e:
+        await message.reply(str(e))
+
+
+@dp.callback_query(F.data == "delete")
+async def delete_post(callback: CallbackQuery) -> None:
+    await callback.message.delete()
+    await callback.answer("Удалено")
+
+
+@dp.callback_query(F.data == "send")
+async def send_post(callback: CallbackQuery) -> None:
+    await callback.message.copy_to(CHANNEL_CHATID)
+    await callback.message.delete()
+    await callback.answer("Отправлено")
+
+
+def cur_date() -> str:
+    return datetime.fromtimestamp(time.time() + TIMESTAMP).strftime("%d.%m.%Y")
+
+
+def news_text(new: NewModel, new_tag: str) -> str:
+    return f"⚡️<b>{new.title}</b>\n\n{new.text}\n\n#{new_tag.replace(' ', '_').replace('-', '_')}"
+
+
+def build_keyboard() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="✅", callback_data="send"),
+        InlineKeyboardButton(text="❌", callback_data="delete")
+    )
+    return builder.as_markup()
+
+
+async def create_new_and_poll(message: Message) -> None:
+    if message.caption and message.photo:
+        new = await generate_new_from_img_and_caption(message.photo[-1].file_id, message.caption)
+        await message.answer_photo(message.photo[-1].file_id, caption=news_text(new, 'предложка'),
+                                   reply_markup=build_keyboard())
+    elif message.photo:
+        new = await generate_new_from_img(message.photo[-1].file_id)
+        await message.answer_photo(message.photo[-1].file_id, caption=news_text(new, 'предложка'),
+                                   reply_markup=build_keyboard())
+    else:
+        new = await generate_new_from_text(message.text)
+        await message.answer(news_text(new, 'предложка'), reply_markup=build_keyboard())
+    poll = await generate_poll(new)
+    await message.answer_poll(
         poll.question,
-        [InputPollOption(poll.options[0][:100]), InputPollOption(poll.options[1][:100])],
-        True
+        [InputPollOption(text=poll.options[0][:100]), InputPollOption(text=poll.options[1][:100])],
+        is_anonymous=True,
+        reply_markup=build_keyboard()
     )
 
 
-def job_post_news(channel=CHANNEL_CHATID):
-    # пост в канал
-    new, new_tag = generate_new()
-    bot.send_message(channel, news_text(new, new_tag))
-    poll = generate_poll(new.title)
-    bot.send_poll(
-        channel,
-        poll.question,
-        [InputPollOption(poll.options[0][:100]), InputPollOption(poll.options[1][:100])],
-        True
-    )
+async def get_photo_url(file_id: str) -> str:
+    file_info = await bot.get_file(file_id)
+    return f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_info.file_path}"
 
 
-def generate_poll(title):
-    chat_completion = neuro.chat.completions.create(
-        messages=[
-            {"role": "system",
-             "content": LORE},
-            {"role": "user",
-             "content": f'Составь опрос к новости с таким заголовком: {title}. Опрос должен содержать ровно два \
-варианта ответа. Цель опроса это узнать мнение подписчиков канала касательно определённой темы. Опрос должен быть \
-провокационным чтобы в нём проголосовало как можно больше людей. Твой ответ должен быть в формате JSON с такими \
-полями: вопрос опроса, список из двух вариантов ответа. JSON должен соответствовать этой \
-схеме: {json.dumps(PollModel.model_json_schema(), indent=2)}'}
-        ],
-        response_format={"type": "json_object"},
-        model=MODEL_NAME,
-        temperature=TEMPERATURE
-    )
-    return PollModel.model_validate_json(chat_completion.choices[0].message.content)
-
-
-def generate_new_from_img(file_id):
-    file_info = bot.get_file(file_id)
-    downloaded_file = bot.download_file(file_info.file_path)
-    base64_image = base64.b64encode(downloaded_file).decode('utf-8')
-    chat_completion = neuro.chat.completions.create(
+async def create_chat_completion_img(prompt: str, img_url: str) -> str:
+    chat_completion = await ai_client.chat.completions.create(
         messages=[
             {"role": "system",
              "content": LORE},
@@ -133,15 +132,12 @@ def generate_new_from_img(file_id):
              "content": [
                  {
                      "type": "text",
-                     "text": f'Напиши новость к которой идеально подойдёт это изображение. Учти что сегодня \
-{cur_date().strftime("%d.%m.%Y")}, но не добавляй эту дату в текст. Твой ответ должен быть в формате JSON с такими \
-полями: заголовок новости, текст новости. JSON должен соответствовать этой схеме: \
-{json.dumps(NewModel.model_json_schema(), indent=2)}'
+                     "text": prompt
                  },
                  {
                      "type": "image_url",
                      "image_url": {
-                         "url": f"data:image/jpeg;base64,{base64_image}"
+                         "url": img_url
                      }
                  }
              ]}
@@ -150,48 +146,116 @@ def generate_new_from_img(file_id):
         model=MODEL_NAME,
         temperature=TEMPERATURE
     )
-    return NewModel.model_validate_json(chat_completion.choices[0].message.content)
+    return chat_completion.choices[0].message.content
 
 
-def generate_new():
-    new_tag = random.choice(NEW_TAGS)
-    chat_completion = neuro.chat.completions.create(
+async def generate_new_from_img_and_caption(file_id: str, caption: str) -> NewModel:
+    url = await get_photo_url(file_id)
+    content = await create_chat_completion_img(
+        PHOTO_AND_CAPTION_PROMPT.format(
+            title=caption,
+            date=cur_date(),
+            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+        ),
+        url
+    )
+    return NewModel.model_validate_json(content)
+
+
+async def generate_new_from_img(file_id: str) -> NewModel:
+    url = await get_photo_url(file_id)
+    content = await create_chat_completion_img(
+        PHOTO_PROMPT.format(
+            date=cur_date(),
+            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+        ),
+        url
+    )
+    return NewModel.model_validate_json(content)
+
+
+async def create_chat_completion_text(prompt: str) -> str:
+    chat_completion = await ai_client.chat.completions.create(
         messages=[
             {"role": "system",
              "content": LORE},
             {"role": "user",
-             "content": f'Напиши новость на тему "{new_tag}". Учти что сегодня {cur_date().strftime("%d.%m.%Y")}, \
-но не добавляй эту дату в текст. Твой ответ должен быть в формате JSON с такими полями: заголовок новости, текст \
-новости. JSON должен соответствовать этой схеме: {json.dumps(NewModel.model_json_schema(), indent=2)}'}
+             "content": prompt}
         ],
         response_format={"type": "json_object"},
         model=MODEL_NAME,
         temperature=TEMPERATURE
     )
-    return NewModel.model_validate_json(chat_completion.choices[0].message.content), new_tag
+    return chat_completion.choices[0].message.content
 
 
-@app.route(f'/{BOT_TOKEN}', methods=['POST'])
-def get_message():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return 'ok', 200
+async def generate_new_from_text(text: str) -> NewModel:
+    content = await create_chat_completion_text(
+        TEXT_PROMPT.format(
+            title=text,
+            date=cur_date(),
+            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+        )
+    )
+    return NewModel.model_validate_json(content)
 
 
-@app.route('/')
-def get_ok():
-    return 'ok', 200
+async def generate_new_from_tag() -> Tuple[NewModel, str]:
+    new_tag = random.choice(NEW_TAGS)
+    content = await create_chat_completion_text(
+        TAG_PROMPT.format(
+            tag=new_tag,
+            date=cur_date(),
+            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+        )
+    )
+    return NewModel.model_validate_json(content), new_tag
 
 
-def updater():
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+async def generate_poll(new: NewModel) -> PollModel:
+    content = await create_chat_completion_text(
+        POLL_PROMPT.format(
+            title=new.title,
+            text=new.text,
+            schema=json.dumps(PollModel.model_json_schema(), indent=2)
+        )
+    )
+    return PollModel.model_validate_json(content)
+
+
+async def job_post_news() -> None:
+    new, new_tag = await generate_new_from_tag()
+    await bot.send_message(CHANNEL_CHATID, news_text(new, new_tag))
+    poll = await generate_poll(new)
+    await bot.send_poll(
+        CHANNEL_CHATID,
+        poll.question,
+        [InputPollOption(text=poll.options[0][:100]), InputPollOption(text=poll.options[1][:100])],
+        is_anonymous=True
+    )
+
+
+@app.post(f"{BOT_TOKEN}")
+async def webhook(request: Request) -> None:
+    update = Update.model_validate(await request.json(), context={"bot": bot})
+    await dp.feed_update(bot, update)
+
+
+@app.get("/")
+async def read_root() -> HTMLResponse:
+    return HTMLResponse(content="ok")
+
+
+async def main() -> None:
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(job_post_news, 'interval', hours=12)
+    scheduler.start()
+    await bot.send_message(REPORT_CHATID, 'Запущено')
+    await bot.delete_webhook()
+    # await dp.start_polling(bot)
+    await bot.set_webhook(url=f"{APP_URL}/{BOT_TOKEN}", drop_pending_updates=True)
+    uvicorn.run(app, host="0.0.0.0", port=80)
 
 
 if __name__ == '__main__':
-    schedule.every(12).hours.do(job_post_news)
-    Thread(target=updater).start()
-    bot.send_message(ME_CHATID, 'Запущено')
-    app.run(host='0.0.0.0', port=80, threaded=True)
+    asyncio.run(main())
