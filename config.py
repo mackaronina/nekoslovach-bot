@@ -12,7 +12,7 @@ REPORT_CHATID = 7258570440
 CHANNEL_CHATID = -1002426494412
 TIMESTAMP = 3 * 3600
 TEMPERATURE = 1.2
-MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct"
+MODEL_NAME = "meta-llama/llama-4-maverick-17b-128e-instruct"
 
 LORE = 'Некославия это крайне развитая страна, граждан которой называют некославы, а мудрого правителя некокинг, её \
 девиз это "Славься Некославия!". Валюта Некославии это некогривна. Столица Некославии это город Северодонецк. Главной \
