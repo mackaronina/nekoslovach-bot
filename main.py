@@ -235,7 +235,7 @@ async def job_post_news() -> None:
     )
 
 
-@app.post(f"{BOT_TOKEN}")
+@app.post(f"/{BOT_TOKEN}")
 async def webhook(request: Request) -> None:
     update = Update.model_validate(await request.json(), context={"bot": bot})
     await dp.feed_update(bot, update)
