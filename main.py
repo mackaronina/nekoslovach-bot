@@ -254,7 +254,7 @@ async def main() -> None:
     await bot.delete_webhook()
     # await dp.start_polling(bot)
     await bot.set_webhook(url=f"{APP_URL}/{BOT_TOKEN}", drop_pending_updates=True)
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    await uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=80)).serve()
 
 
 if __name__ == '__main__':
