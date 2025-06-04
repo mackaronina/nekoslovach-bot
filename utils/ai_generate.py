@@ -27,6 +27,10 @@ async def get_photo_url(bot: Bot, file_id: str) -> str:
     return f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_info.file_path}"
 
 
+def postprocess_comment(text: str) -> str:
+    return text.strip("'.\" ").capitalize()
+
+
 async def generate_new_from_img_and_caption(bot: Bot, ai_client: AsyncOpenAI, file_id: str, caption: str) -> NewModel:
     url = await get_photo_url(bot, file_id)
     content = await chat_completion_img(
@@ -92,7 +96,7 @@ async def generate_poll(ai_client: AsyncOpenAI, new: NewModel) -> PollModel:
 
 
 async def generate_reply_to_comment_new(ai_client: AsyncOpenAI, message: Message) -> str:
-    return await chat_completion_text(
+    text = await chat_completion_text(
         ai_client,
         REPLY_COMMENT_NEW_PROMPT.format(
             new_text=message.reply_to_message.text or message.reply_to_message.caption,
@@ -101,10 +105,11 @@ async def generate_reply_to_comment_new(ai_client: AsyncOpenAI, message: Message
         ),
         response_format="text"
     )
+    return postprocess_comment(text)
 
 
 async def generate_reply_to_comment_poll(ai_client: AsyncOpenAI, message: Message) -> str:
-    return await chat_completion_text(
+    text = await chat_completion_text(
         ai_client,
         REPLY_COMMENT_POLL_PROMPT.format(
             poll_question=message.reply_to_message.poll.question,
@@ -113,10 +118,11 @@ async def generate_reply_to_comment_poll(ai_client: AsyncOpenAI, message: Messag
         ),
         response_format="text"
     )
+    return postprocess_comment(text)
 
 
 async def generate_reply_to_comment_dialog(ai_client: AsyncOpenAI, message: Message) -> str:
-    return await chat_completion_text(
+    text = await chat_completion_text(
         ai_client,
         REPLY_COMMENT_DIALOG_PROMPT.format(
             reply_to_text=message.reply_to_message.text or message.reply_to_message.caption,
@@ -125,3 +131,4 @@ async def generate_reply_to_comment_dialog(ai_client: AsyncOpenAI, message: Mess
         ),
         response_format="text"
     )
+    return postprocess_comment(text)
