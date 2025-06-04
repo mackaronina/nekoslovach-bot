@@ -9,7 +9,7 @@ from aiogram.types import Message
 from openai import AsyncOpenAI
 
 from config import TIMESTAMP, BOT_TOKEN, NEW_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_PROMPT, NEW_TEXT_PROMPT, NEW_TAGS, \
-    NEW_TAG_PROMPT, POLL_PROMPT, REPLY_COMMENT_POLL_PROMPT, REPLY_COMMENT_NEW_PROMPT
+    NEW_TAG_PROMPT, POLL_PROMPT, REPLY_COMMENT_POLL_PROMPT, REPLY_COMMENT_NEW_PROMPT, REPLY_COMMENT_DIALOG_PROMPT
 from utils.api_calls import chat_completion_img, chat_completion_text
 from utils.models import NewModel, PollModel
 
@@ -108,6 +108,18 @@ async def generate_reply_to_comment_poll(ai_client: AsyncOpenAI, message: Messag
         ai_client,
         REPLY_COMMENT_POLL_PROMPT.format(
             poll_question=message.reply_to_message.poll.question,
+            user_name=message.from_user.full_name,
+            comment_text=message.text or message.caption,
+        ),
+        response_format="text"
+    )
+
+
+async def generate_reply_to_comment_dialog(ai_client: AsyncOpenAI, message: Message) -> str:
+    return await chat_completion_text(
+        ai_client,
+        REPLY_COMMENT_DIALOG_PROMPT.format(
+            reply_to_text=message.reply_to_message.text or message.reply_to_message.caption,
             user_name=message.from_user.full_name,
             comment_text=message.text or message.caption,
         ),
