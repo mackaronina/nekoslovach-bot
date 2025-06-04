@@ -28,7 +28,7 @@ async def get_photo_url(bot: Bot, file_id: str) -> str:
 
 
 def postprocess_comment(text: str) -> str:
-    text = text.strip("'.\" ")
+    text = text.replace("'", "").replace('"', "").strip(". ")
     return text[:1].upper() + text[1:]
 
 
