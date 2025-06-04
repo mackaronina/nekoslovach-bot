@@ -3,7 +3,7 @@ from aiogram.types import Message, InputPollOption
 from openai import AsyncOpenAI
 
 from keyboards.kb_post_to_channel import build_keyboard
-from utils.generate_news import generate_new_from_text, news_text, generate_poll, generate_new_from_img_and_caption, \
+from utils.ai_generate import generate_new_from_text, news_text, generate_poll, generate_new_from_img_and_caption, \
     generate_new_from_img
 
 router = Router()

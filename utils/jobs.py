@@ -3,7 +3,7 @@ from aiogram.types import InputPollOption
 from openai import AsyncOpenAI
 
 from config import CHANNEL_CHATID
-from utils.generate_news import generate_new_from_tag, news_text, generate_poll
+from utils.ai_generate import generate_new_from_tag, news_text, generate_poll
 
 
 async def job_post_news(bot: Bot, ai_client: AsyncOpenAI) -> None:

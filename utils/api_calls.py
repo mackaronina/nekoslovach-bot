@@ -1,21 +1,10 @@
-from typing import List
-
-from openai import BaseModel, AsyncOpenAI
+from openai import AsyncOpenAI
 
 from config import LORE, MODEL_NAME, TEMPERATURE
 
 
-class NewModel(BaseModel):
-    title: str
-    text: str
-
-
-class PollModel(BaseModel):
-    question: str
-    options: List[str]
-
-
-async def create_chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_url: str) -> str:
+async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_url: str,
+                              response_format: str = "json_object") -> str:
     chat_completion = await ai_client.chat.completions.create(
         messages=[
             {"role": "system",
@@ -34,14 +23,14 @@ async def create_chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_ur
                  }
              ]}
         ],
-        response_format={"type": "json_object"},
+        response_format={"type": response_format},
         model=MODEL_NAME,
         temperature=TEMPERATURE
     )
     return chat_completion.choices[0].message.content
 
 
-async def create_chat_completion_text(ai_client: AsyncOpenAI, prompt: str) -> str:
+async def chat_completion_text(ai_client: AsyncOpenAI, prompt: str, response_format: str = "json_object") -> str:
     chat_completion = await ai_client.chat.completions.create(
         messages=[
             {"role": "system",
@@ -49,7 +38,7 @@ async def create_chat_completion_text(ai_client: AsyncOpenAI, prompt: str) -> st
             {"role": "user",
              "content": prompt}
         ],
-        response_format={"type": "json_object"},
+        response_format={"type": response_format},
         model=MODEL_NAME,
         temperature=TEMPERATURE
     )

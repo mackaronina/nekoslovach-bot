@@ -13,7 +13,7 @@ from fastapi.responses import HTMLResponse
 from openai import AsyncOpenAI
 
 from config import BOT_TOKEN, REPORT_CHATID, GROQ_KEY, APP_URL
-from handlers import private_messages, callbacks, commands, errors
+from handlers import private_messages, callbacks, commands, errors, comments_messages
 from utils.jobs import job_post_news
 
 
@@ -25,7 +25,8 @@ async def main() -> None:
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
     dp = Dispatcher()
     dp["ai_client"] = ai_client
-    dp.include_routers(callbacks.router, commands.router, errors.router, private_messages.router)
+    dp.include_routers(callbacks.router, commands.router, errors.router, private_messages.router,
+                       comments_messages.router)
 
     app = FastAPI()
 
@@ -45,7 +46,7 @@ async def main() -> None:
 
     await bot.send_message(REPORT_CHATID, "Запущено")
     await bot.delete_webhook()
-    # Polling
+    # Uncomment for polling
     # await dp.start_polling(bot)
     await bot.set_webhook(url=f"{APP_URL}/{BOT_TOKEN}", drop_pending_updates=True)
     await uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=80)).serve()
