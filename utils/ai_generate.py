@@ -28,7 +28,8 @@ async def get_photo_url(bot: Bot, file_id: str) -> str:
 
 
 def postprocess_comment(text: str) -> str:
-    return text.strip("'.\" ").capitalize()
+    text = text.strip("'.\" ")
+    return text[:1].upper() + text[1:]
 
 
 async def generate_new_from_img_and_caption(bot: Bot, ai_client: AsyncOpenAI, file_id: str, caption: str) -> NewModel:
