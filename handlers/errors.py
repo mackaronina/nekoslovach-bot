@@ -12,6 +12,6 @@ router = Router()
 async def error_handler(event: ErrorEvent, bot: Bot) -> None:
     await bot.send_document(
         REPORT_CHATID,
-        BufferedInputFile(traceback.format_exc().encode('utf8'), filename="error.txt"),
+        BufferedInputFile(traceback.format_exc().encode('utf8'), filename='error.txt'),
         caption=str(event.exception)
     )

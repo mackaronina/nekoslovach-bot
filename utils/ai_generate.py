@@ -15,20 +15,21 @@ from utils.models import NewModel, PollModel
 
 
 def cur_date() -> str:
-    return datetime.fromtimestamp(time.time() + TIMESTAMP).strftime("%d.%m.%Y")
+    return datetime.fromtimestamp(time.time() + TIMESTAMP).strftime('%d.%m.%Y')
 
 
 def news_text(new: NewModel, new_tag: str) -> str:
-    return f"⚡️<b>{new.title}</b>\n\n{new.text}\n\n#{new_tag.replace(' ', '_').replace('-', '_')}"
+    new_tag = new_tag.replace(' ', '_').replace('-', '_')
+    return f'⚡️<b>{new.title}</b>\n\n{new.text}\n\n#{new_tag}'
 
 
 async def get_photo_url(bot: Bot, file_id: str) -> str:
     file_info = await bot.get_file(file_id)
-    return f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_info.file_path}"
+    return f'https://api.telegram.org/file/bot{BOT_TOKEN}/{file_info.file_path}'
 
 
 def postprocess_comment(text: str) -> str:
-    text = text.replace("'", "").replace('"', "").strip(". ")
+    text = text.replace("'", '').replace('"', '').strip('. ')
     return text[:1].upper() + text[1:]
 
 
@@ -104,7 +105,7 @@ async def generate_reply_to_comment_new(ai_client: AsyncOpenAI, message: Message
             user_name=message.from_user.full_name,
             comment_text=message.text or message.caption
         ),
-        response_format="text"
+        response_format='text'
     )
     return postprocess_comment(text)
 
@@ -117,7 +118,7 @@ async def generate_reply_to_comment_poll(ai_client: AsyncOpenAI, message: Messag
             user_name=message.from_user.full_name,
             comment_text=message.text or message.caption,
         ),
-        response_format="text"
+        response_format='text'
     )
     return postprocess_comment(text)
 
@@ -130,6 +131,6 @@ async def generate_reply_to_comment_dialog(ai_client: AsyncOpenAI, message: Mess
             user_name=message.from_user.full_name,
             comment_text=message.text or message.caption,
         ),
-        response_format="text"
+        response_format='text'
     )
     return postprocess_comment(text)

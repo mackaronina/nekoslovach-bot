@@ -18,39 +18,39 @@ from utils.jobs import job_post_news
 
 
 async def main() -> None:
-    ai_client = AsyncOpenAI(base_url="https://api.groq.com/openai/v1", api_key=GROQ_KEY)
+    ai_client = AsyncOpenAI(base_url='https://api.groq.com/openai/v1', api_key=GROQ_KEY)
 
     logging.basicConfig(level=logging.INFO)
 
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
     dp = Dispatcher()
-    dp["ai_client"] = ai_client
+    dp['ai_client'] = ai_client
     dp.include_routers(callbacks.router, commands.router, errors.router, private_messages.router,
                        comments_messages.router)
 
     app = FastAPI()
 
     async def webhook(request: Request) -> None:
-        update = Update.model_validate(await request.json(), context={"bot": bot})
+        update = Update.model_validate(await request.json(), context={'bot': bot})
         await dp.feed_update(bot, update)
 
     async def read_root() -> HTMLResponse:
-        return HTMLResponse(content="ok")
+        return HTMLResponse(content='ok')
 
-    app.add_api_route("/", endpoint=read_root, methods=["GET"])
-    app.add_api_route(f"/{BOT_TOKEN}", endpoint=webhook, methods=["POST"])
+    app.add_api_route('/', endpoint=read_root, methods=['GET'])
+    app.add_api_route(f'/{BOT_TOKEN}', endpoint=webhook, methods=['POST'])
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(job_post_news, "interval", (bot, ai_client), hours=12)
+    scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=12)
     scheduler.start()
 
-    await bot.send_message(REPORT_CHATID, "Запущено")
+    await bot.send_message(REPORT_CHATID, 'Запущено')
     await bot.delete_webhook()
     # Uncomment for polling
     # await dp.start_polling(bot)
-    await bot.set_webhook(url=f"{APP_URL}/{BOT_TOKEN}", drop_pending_updates=True)
-    await uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=80)).serve()
+    await bot.set_webhook(url=f'{APP_URL}/{BOT_TOKEN}', drop_pending_updates=True)
+    await uvicorn.Server(uvicorn.Config(app, host='0.0.0.0', port=80)).serve()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())

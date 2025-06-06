@@ -7,7 +7,7 @@ from utils.ai_generate import generate_new_from_text, news_text, generate_poll, 
     generate_new_from_img
 
 router = Router()
-router.message.filter(F.chat.type == "private")
+router.message.filter(F.chat.type == 'private')
 
 
 @router.message(F.photo, F.caption)

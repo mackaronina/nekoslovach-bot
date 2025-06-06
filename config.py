@@ -15,7 +15,7 @@ BOT_USERID = 7620429140
 TG_ANONYMOUS_ID = 777000
 TIMESTAMP = 3 * 3600
 TEMPERATURE = 1.2
-MODEL_NAME = "meta-llama/llama-4-maverick-17b-128e-instruct"
+MODEL_NAME = 'meta-llama/llama-4-maverick-17b-128e-instruct'
 
 LORE = 'Некославия это крайне развитая страна, граждан которой называют некославы, а мудрого правителя некокинг, её \
 девиз это "Славься Некославия!". Валюта Некославии это некогривна. Столица Некославии это город Северодонецк. Главной \
