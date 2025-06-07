@@ -1,3 +1,4 @@
+import html
 import json
 import random
 import time
@@ -35,7 +36,7 @@ def cur_date() -> str:
 
 def new_to_text(new: NewModel, new_tag: str) -> str:
     new_tag = new_tag.replace(' ', '_').replace('-', '_')
-    return f'⚡️<b>{new.title}</b>\n\n{new.text}\n\n#{new_tag}'
+    return f'⚡️<b>{html.escape(new.title)}</b>\n\n{html.escape(new.text)}\n\n#{html.escape(new_tag)}'
 
 
 async def get_img_url(message: Message) -> str:
@@ -49,7 +50,7 @@ async def get_img_url(message: Message) -> str:
 
 def postprocess_comment(text: str) -> str:
     text = text.replace("'", '').replace('"', '').strip('. ')
-    return text[:1].upper() + text[1:]
+    return html.escape(text[:1].upper() + text[1:])
 
 
 async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Message) -> str:
