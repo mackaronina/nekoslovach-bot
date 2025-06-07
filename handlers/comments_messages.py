@@ -13,18 +13,18 @@ router.message.middleware(CommentsMiddleware())
 
 
 @router.message(F.photo, F.caption)
-async def msg_photo_and_caption(message: Message, ai_client: AsyncOpenAI, post_text: str) -> None:
+async def msg_photo_and_caption(message: Message, ai_client: AsyncOpenAI, post_text: str) -> int:
     reply_text = await generate_reply_comment_img_and_caption(ai_client, message, post_text)
-    await message.reply(reply_text)
+    return await message.reply(reply_text).message_id
 
 
 @router.message(F.photo | F.sticker)
-async def msg_photo(message: Message, ai_client: AsyncOpenAI, post_text: str) -> None:
+async def msg_photo(message: Message, ai_client: AsyncOpenAI, post_text: str) -> int:
     reply_text = await generate_reply_comment_img(ai_client, message, post_text)
-    await message.reply(reply_text)
+    return await message.reply(reply_text).message_id
 
 
 @router.message(F.text | F.caption)
-async def msg_text(message: Message, ai_client: AsyncOpenAI, post_text: str) -> None:
+async def msg_text(message: Message, ai_client: AsyncOpenAI, post_text: str) -> int:
     reply_text = await generate_reply_comment_text(ai_client, message, post_text)
-    await message.reply(reply_text)
+    return await message.reply(reply_text).message_id

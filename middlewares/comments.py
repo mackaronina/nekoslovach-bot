@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Any, Awaitable
+from typing import Callable, Dict, Any, Awaitable, Optional
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message
@@ -8,7 +8,7 @@ from config import TG_ANONYMOUS_ID
 
 class CommentsMiddleware(BaseMiddleware):
     async def __call__(self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], message: Message,
-                       data: Dict[str, Any]) -> Any:
+                       data: Dict[str, Any]) -> Optional[int]:
         comment_ids = data['comment_ids']
         post_texts = data['post_texts']
         if message.reply_to_message.from_user.id == TG_ANONYMOUS_ID:
@@ -26,7 +26,9 @@ class CommentsMiddleware(BaseMiddleware):
             if post_id is None or post_id not in post_texts:
                 return None
         data['post_text'] = post_texts[post_id]
-        return await handler(message, data)
+        reply_id = await handler(message, data)
+        comment_ids[post_id].append(reply_id)
+        return reply_id
 
 
 def post_to_text(message: Message) -> str:
