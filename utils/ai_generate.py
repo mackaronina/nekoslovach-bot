@@ -53,6 +53,15 @@ def postprocess_comment(text: str) -> str:
     return html.escape(text[:1].upper() + text[1:])
 
 
+def poll_to_dict(poll: PollModel) -> PollDict:
+    return {
+        'question': html.escape(poll.question),
+        'options': [InputPollOption(text=html.escape(poll.options[0][:100])),
+                    InputPollOption(text=html.escape(poll.options[1][:100]))],
+        'is_anonymous': True,
+    }
+
+
 async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Message) -> str:
     url = await get_img_url(message)
     content = await chat_completion_img(
@@ -118,11 +127,7 @@ async def generate_poll(ai_client: AsyncOpenAI, new_text: str) -> PollDict:
         )
     )
     poll = PollModel.model_validate_json(content)
-    return {
-        'question': poll.question,
-        'options': [InputPollOption(text=poll.options[0][:100]), InputPollOption(text=poll.options[1][:100])],
-        'is_anonymous': True,
-    }
+    return poll_to_dict(poll)
 
 
 async def generate_reply_comment_text(ai_client: AsyncOpenAI, message: Message, post_text: str) -> str:
