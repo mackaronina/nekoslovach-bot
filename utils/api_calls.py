@@ -1,14 +1,18 @@
+import logging
+
 from openai import AsyncOpenAI
 
-from config import LORE, MODEL_NAME, TEMPERATURE
+from config import MODEL_NAME, TEMPERATURE
+from prompts import SYSTEM_PROMPT
 
 
 async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_url: str,
                               response_format: str = 'json_object') -> str:
+    logging.info(f'Sending prompt: {prompt}')
     chat_completion = await ai_client.chat.completions.create(
         messages=[
             {'role': 'system',
-             'content': LORE},
+             'content': SYSTEM_PROMPT},
             {'role': 'user',
              'content': [
                  {
@@ -31,10 +35,11 @@ async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_url: str,
 
 
 async def chat_completion_text(ai_client: AsyncOpenAI, prompt: str, response_format: str = 'json_object') -> str:
+    logging.info(f'Sending prompt: {prompt}')
     chat_completion = await ai_client.chat.completions.create(
         messages=[
             {'role': 'system',
-             'content': LORE},
+             'content': SYSTEM_PROMPT},
             {'role': 'user',
              'content': prompt}
         ],

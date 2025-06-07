@@ -7,8 +7,9 @@ from typing import TypedDict, List
 from aiogram.types import Message, InputPollOption
 from openai import AsyncOpenAI, BaseModel
 
-from config import TIMESTAMP, BOT_TOKEN, NEW_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_PROMPT, NEW_TEXT_PROMPT, NEW_TAGS, \
-    NEW_TAG_PROMPT, POLL_PROMPT, COMMENT_TEXT_PROMPT, COMMENT_PHOTO_PROMPT, COMMENT_PHOTO_AND_CAPTION_PROMPT
+from config import TIMESTAMP, BOT_TOKEN, NEW_TAGS, NEW_DEFAULT_TAG
+from prompts import NEW_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_PROMPT, NEW_TEXT_PROMPT, NEW_TAG_PROMPT, POLL_PROMPT, \
+    COMMENT_TEXT_PROMPT, COMMENT_PHOTO_PROMPT, COMMENT_PHOTO_AND_CAPTION_PROMPT
 from utils.api_calls import chat_completion_img, chat_completion_text
 
 
@@ -63,7 +64,7 @@ async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Mes
         url
     )
     new = NewModel.model_validate_json(content)
-    return new_to_text(new, 'предложка')
+    return new_to_text(new, NEW_DEFAULT_TAG)
 
 
 async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str:
@@ -77,7 +78,7 @@ async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str
         url
     )
     new = NewModel.model_validate_json(content)
-    return new_to_text(new, 'предложка')
+    return new_to_text(new, NEW_DEFAULT_TAG)
 
 
 async def generate_new_from_text(ai_client: AsyncOpenAI, message: Message) -> str:
@@ -90,7 +91,7 @@ async def generate_new_from_text(ai_client: AsyncOpenAI, message: Message) -> st
         )
     )
     new = NewModel.model_validate_json(content)
-    return new_to_text(new, 'предложка')
+    return new_to_text(new, NEW_DEFAULT_TAG)
 
 
 async def generate_new_from_tag(ai_client: AsyncOpenAI) -> str:

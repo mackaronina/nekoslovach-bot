@@ -20,7 +20,7 @@ from utils.jobs import job_post_news
 async def main() -> None:
     ai_client = AsyncOpenAI(base_url='https://api.groq.com/openai/v1', api_key=GROQ_KEY)
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
     dp = Dispatcher()

@@ -1,3 +1,4 @@
+import logging
 import traceback
 
 from aiogram import Router, Bot
@@ -15,3 +16,4 @@ async def error_handler(event: ErrorEvent, bot: Bot) -> None:
         BufferedInputFile(traceback.format_exc().encode('utf8'), filename='error.txt'),
         caption=str(event.exception)
     )
+    logging.exception(str(event.exception))
