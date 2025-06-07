@@ -24,6 +24,8 @@ async def main() -> None:
 
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
     dp = Dispatcher()
+    dp['comment_ids'] = {}
+    dp['post_texts'] = {}
     dp['ai_client'] = ai_client
     dp.include_routers(callbacks.router, commands.router, errors.router, private_messages.router,
                        comments_messages.router)

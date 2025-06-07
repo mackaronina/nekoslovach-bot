@@ -2,28 +2,29 @@ from aiogram import Router, F
 from aiogram.types import Message
 from openai import AsyncOpenAI
 
-from config import COMMENTS_CHATID, TG_ANONYMOUS_ID, BOT_USERID
-from utils.ai_generate import generate_reply_to_comment_new, generate_reply_to_comment_poll, \
-    generate_reply_to_comment_dialog
+from config import COMMENTS_CHATID
+from middlewares.comments import CommentsMiddleware
+from utils.ai_generate import generate_reply_comment_img_and_caption, generate_reply_comment_img, \
+    generate_reply_comment_text
 
 router = Router()
-router.message.filter(F.chat.id == COMMENTS_CHATID, F.text | F.caption)
+router.message.filter(F.chat.id == COMMENTS_CHATID, F.reply_to_message)
+router.message.middleware(CommentsMiddleware())
 
 
-@router.message(F.reply_to_message.from_user.id == TG_ANONYMOUS_ID,
-                F.reply_to_message.text | F.reply_to_message.caption)
-async def msg_reply_comment_new(message: Message, ai_client: AsyncOpenAI) -> None:
-    reply_text = await generate_reply_to_comment_new(ai_client, message)
+@router.message(F.photo, F.caption)
+async def msg_photo_and_caption(message: Message, ai_client: AsyncOpenAI, post_text: str) -> None:
+    reply_text = await generate_reply_comment_img_and_caption(ai_client, message, post_text)
     await message.reply(reply_text)
 
 
-@router.message(F.reply_to_message.from_user.id == TG_ANONYMOUS_ID, F.reply_to_message.poll)
-async def msg_reply_comment_poll(message: Message, ai_client: AsyncOpenAI) -> None:
-    reply_text = await generate_reply_to_comment_poll(ai_client, message)
+@router.message(F.photo | F.sticker)
+async def msg_photo(message: Message, ai_client: AsyncOpenAI, post_text: str) -> None:
+    reply_text = await generate_reply_comment_img(ai_client, message, post_text)
     await message.reply(reply_text)
 
 
-@router.message(F.reply_to_message.from_user.id == BOT_USERID, F.reply_to_message.text | F.reply_to_message.caption)
-async def msg_reply_comment_dialog(message: Message, ai_client: AsyncOpenAI) -> None:
-    reply_text = await generate_reply_to_comment_dialog(ai_client, message)
+@router.message(F.text | F.caption)
+async def msg_text(message: Message, ai_client: AsyncOpenAI, post_text: str) -> None:
+    reply_text = await generate_reply_comment_text(ai_client, message, post_text)
     await message.reply(reply_text)
