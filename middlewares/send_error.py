@@ -1,3 +1,4 @@
+import html
 from typing import Awaitable, Any, Dict, Callable
 
 from aiogram import BaseMiddleware
@@ -10,5 +11,5 @@ class SendErrorMiddleware(BaseMiddleware):
         try:
             return await handler(message, data)
         except Exception as e:
-            await message.reply(str(e))
+            await message.reply(f'Произошла ошибка\n{html.escape(str(e)[:500])}')
             raise e

@@ -1,3 +1,4 @@
+import html
 import logging
 import traceback
 
@@ -14,6 +15,6 @@ async def error_handler(event: ErrorEvent, bot: Bot) -> None:
     await bot.send_document(
         REPORT_CHATID,
         BufferedInputFile(traceback.format_exc().encode('utf8'), filename='error.txt'),
-        caption=str(event.exception)
+        caption=html.escape(str(event.exception)[:500])
     )
     logging.exception(str(event.exception))
