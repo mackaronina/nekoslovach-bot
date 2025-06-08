@@ -69,7 +69,7 @@ async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Mes
         NEW_PHOTO_AND_CAPTION_PROMPT.format(
             title=message.text or message.caption,
             date=cur_date(),
-            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+            schema=json.dumps(NewModel.model_json_schema())
         ),
         url
     )
@@ -83,7 +83,7 @@ async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str
         ai_client,
         NEW_PHOTO_PROMPT.format(
             date=cur_date(),
-            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+            schema=json.dumps(NewModel.model_json_schema())
         ),
         url
     )
@@ -97,7 +97,7 @@ async def generate_new_from_text(ai_client: AsyncOpenAI, message: Message) -> st
         NEW_TEXT_PROMPT.format(
             title=message.text or message.caption,
             date=cur_date(),
-            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+            schema=json.dumps(NewModel.model_json_schema())
         )
     )
     new = NewModel.model_validate_json(content)
@@ -111,7 +111,7 @@ async def generate_new_from_tag(ai_client: AsyncOpenAI) -> str:
         NEW_TAG_PROMPT.format(
             tag=new_tag,
             date=cur_date(),
-            schema=json.dumps(NewModel.model_json_schema(), indent=2)
+            schema=json.dumps(NewModel.model_json_schema())
         )
     )
     new = NewModel.model_validate_json(content)
@@ -122,8 +122,8 @@ async def generate_poll(ai_client: AsyncOpenAI, new_text: str) -> PollDict:
     content = await chat_completion_text(
         ai_client,
         POLL_PROMPT.format(
-            new_text=new_text,
-            schema=json.dumps(PollModel.model_json_schema(), indent=2)
+            new_text=new_text.replace('\n', ' '),
+            schema=json.dumps(PollModel.model_json_schema())
         )
     )
     poll = PollModel.model_validate_json(content)
@@ -134,7 +134,7 @@ async def generate_reply_comment_text(ai_client: AsyncOpenAI, message: Message, 
     text = await chat_completion_text(
         ai_client,
         COMMENT_TEXT_PROMPT.format(
-            post_text=post_text,
+            post_text=post_text.replace('\n', ' '),
             user_name=message.from_user.full_name,
             comment_text=message.text or message.caption
         ),
@@ -148,7 +148,7 @@ async def generate_reply_comment_img(ai_client: AsyncOpenAI, message: Message, p
     text = await chat_completion_img(
         ai_client,
         COMMENT_PHOTO_PROMPT.format(
-            post_text=post_text,
+            post_text=post_text.replace('\n', ' '),
             user_name=message.from_user.full_name
         ),
         url,
@@ -162,7 +162,7 @@ async def generate_reply_comment_img_and_caption(ai_client: AsyncOpenAI, message
     text = await chat_completion_img(
         ai_client,
         COMMENT_PHOTO_AND_CAPTION_PROMPT.format(
-            post_text=post_text,
+            post_text=post_text.replace('\n', ' '),
             user_name=message.from_user.full_name,
             comment_text=message.text or message.caption
         ),
