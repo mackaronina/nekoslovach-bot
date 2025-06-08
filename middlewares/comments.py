@@ -13,10 +13,6 @@ class CommentsMiddleware(BaseMiddleware):
         post_texts = data['post_texts']
         if message.reply_to_message.from_user.id == TG_ANONYMOUS_ID:
             post_id = message.reply_to_message.message_id
-            if post_id in comment_ids:
-                comment_ids[post_id].append(message.message_id)
-            else:
-                comment_ids[post_id] = [message.message_id]
             post_texts[post_id] = post_to_text(message.reply_to_message)
         else:
             post_id = next(
@@ -25,6 +21,10 @@ class CommentsMiddleware(BaseMiddleware):
             )
             if post_id is None or post_id not in post_texts:
                 return None
+        if post_id in comment_ids:
+            comment_ids[post_id].append(message.message_id)
+        else:
+            comment_ids[post_id] = [message.message_id]
         data['post_text'] = post_texts[post_id]
         reply_id = await handler(message, data)
         comment_ids[post_id].append(reply_id)
