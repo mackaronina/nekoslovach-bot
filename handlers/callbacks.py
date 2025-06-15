@@ -3,7 +3,7 @@ import logging
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
-from config import CHANNEL_CHATID
+from config import settings
 
 router = Router()
 
@@ -21,6 +21,6 @@ async def send_post(callback: CallbackQuery) -> None:
             f'User {callback.from_user.id} posting new with text: {callback.message.text or callback.message.caption}')
     elif callback.message.poll is not None:
         logging.info(f'User {callback.from_user.id} posting poll with question: {callback.message.poll.question}')
-    await callback.message.copy_to(CHANNEL_CHATID)
+    await callback.message.copy_to(settings.bot.channel_chat_id)
     await callback.message.delete()
     await callback.answer('Отправлено')

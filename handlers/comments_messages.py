@@ -2,13 +2,13 @@ from aiogram import Router, F
 from aiogram.types import Message
 from openai import AsyncOpenAI
 
-from config import COMMENTS_CHATID
+from config import settings
 from middlewares.comments import CommentsMiddleware
 from utils.ai_generate import generate_reply_comment_img_and_caption, generate_reply_comment_img, \
     generate_reply_comment_text
 
 router = Router()
-router.message.filter(F.chat.id == COMMENTS_CHATID, F.reply_to_message)
+router.message.filter(F.chat.id == settings.bot.comments_chat_id, F.reply_to_message)
 router.message.middleware(CommentsMiddleware())
 
 

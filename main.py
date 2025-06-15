@@ -12,17 +12,18 @@ from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 from openai import AsyncOpenAI
 
-from config import BOT_TOKEN, REPORT_CHATID, GROQ_KEY, APP_URL
+from config import settings
 from handlers import private_messages, callbacks, commands, errors, comments_messages
 from utils.jobs import job_post_news
 
 
 async def main() -> None:
-    ai_client = AsyncOpenAI(base_url='https://api.groq.com/openai/v1', api_key=GROQ_KEY)
+    ai_client = AsyncOpenAI(base_url=settings.openai.url, api_key=settings.openai.token.get_secret_value())
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
-    bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
+    bot = Bot(token=settings.bot.token.get_secret_value(),
+              default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
     dp = Dispatcher()
     dp['comment_ids'] = {}
     dp['post_texts'] = {}
@@ -40,18 +41,19 @@ async def main() -> None:
         return HTMLResponse(content='ok')
 
     app.add_api_route('/', endpoint=read_root, methods=['GET'])
-    app.add_api_route(f'/{BOT_TOKEN}', endpoint=webhook, methods=['POST'])
+    app.add_api_route(f'/{settings.bot.token.get_secret_value()}', endpoint=webhook, methods=['POST'])
 
     scheduler = AsyncIOScheduler()
     scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=12)
     scheduler.start()
 
-    await bot.send_message(REPORT_CHATID, 'Запущено')
+    await bot.send_message(settings.bot.report_chat_id, 'Бот запущен')
     await bot.delete_webhook()
     # Uncomment for polling
     # await dp.start_polling(bot)
-    await bot.set_webhook(url=f'{APP_URL}/{BOT_TOKEN}', drop_pending_updates=True)
-    await uvicorn.Server(uvicorn.Config(app, host='0.0.0.0', port=80)).serve()
+    await bot.set_webhook(url=f'{settings.bot.webhook_domain}/{settings.bot.token.get_secret_value()}',
+                          drop_pending_updates=True)
+    await uvicorn.Server(uvicorn.Config(app, host=settings.bot.host, port=settings.bot.port)).serve()
 
 
 if __name__ == '__main__':
