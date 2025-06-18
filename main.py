@@ -44,7 +44,7 @@ async def main() -> None:
     app.add_api_route(f'/{settings.bot.token.get_secret_value()}', endpoint=webhook, methods=['POST'])
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=12)
+    scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=settings.bot.post_interval)
     scheduler.start()
 
     await bot.send_message(settings.bot.report_chat_id, 'Бот запущен')

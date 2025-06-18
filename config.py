@@ -20,6 +20,7 @@ class BotSettings(ConfigBase):
     channel_chat_id: int
     comments_chat_id: int
     timestamp: int = 0
+    post_interval: int = 12
 
 
 class OpenaiSettings(ConfigBase):
