@@ -13,7 +13,7 @@ class ConfigBase(BaseSettings):
 
 class BotSettings(ConfigBase):
     token: SecretStr = Field(alias='BOT_TOKEN')
-    webhook_domain: SecretStr
+    webhook_domain: str
     host: str = '0.0.0.0'
     port: int = 80
     report_chat_id: int
