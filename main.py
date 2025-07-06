@@ -41,7 +41,8 @@ async def main() -> None:
         return HTMLResponse(content='ok')
 
     app.add_api_route('/', endpoint=read_root, methods=['GET'])
-    app.add_api_route(f'/{settings.bot.token.get_secret_value()}', endpoint=webhook, methods=['POST'])
+    app.add_api_route(f'/{settings.bot.token.get_secret_value()}', endpoint=webhook, methods=['POST'],
+                      include_in_schema=False)
 
     scheduler = AsyncIOScheduler()
     scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=settings.bot.post_interval)
