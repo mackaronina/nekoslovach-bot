@@ -13,7 +13,7 @@ router = Router()
 @router.error()
 async def error_handler(event: ErrorEvent, bot: Bot) -> None:
     await bot.send_document(
-        settings.bot.report_chat_id,
+        settings.report_chat_id,
         BufferedInputFile(traceback.format_exc().encode('utf8'), filename='error.txt'),
         caption=html.escape(str(event.exception)[:500])
     )

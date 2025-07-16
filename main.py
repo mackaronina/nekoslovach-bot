@@ -22,7 +22,7 @@ async def main() -> None:
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
-    bot = Bot(token=settings.bot.token.get_secret_value(),
+    bot = Bot(token=settings.bot_token.get_secret_value(),
               default=DefaultBotProperties(parse_mode=ParseMode.HTML, link_preview_is_disabled=True))
     dp = Dispatcher()
     dp['comment_ids'] = {}
@@ -41,20 +41,20 @@ async def main() -> None:
         return HTMLResponse(content='ok')
 
     app.add_api_route('/', endpoint=read_root, methods=['GET'])
-    app.add_api_route(f'/{settings.bot.token.get_secret_value()}', endpoint=webhook, methods=['POST'],
+    app.add_api_route(f'/{settings.bot_token.get_secret_value()}', endpoint=webhook, methods=['POST'],
                       include_in_schema=False)
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=settings.bot.post_interval)
+    scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=settings.post_interval)
     scheduler.start()
 
-    await bot.send_message(settings.bot.report_chat_id, 'Бот запущен')
+    await bot.send_message(settings.report_chat_id, 'Бот запущен')
     await bot.delete_webhook()
     # Uncomment for polling
     # await dp.start_polling(bot)
-    await bot.set_webhook(url=f'{settings.bot.webhook_domain}/{settings.bot.token.get_secret_value()}',
+    await bot.set_webhook(url=f'{settings.webhook_domain}/{settings.bot_token.get_secret_value()}',
                           drop_pending_updates=True)
-    await uvicorn.Server(uvicorn.Config(app, host=settings.bot.host, port=settings.bot.port)).serve()
+    await uvicorn.Server(uvicorn.Config(app, host=settings.host, port=settings.port)).serve()
 
 
 if __name__ == '__main__':

@@ -11,18 +11,6 @@ class ConfigBase(BaseSettings):
                                       case_sensitive=False)
 
 
-class BotSettings(ConfigBase):
-    token: SecretStr = Field(alias='BOT_TOKEN')
-    webhook_domain: str
-    host: str = '0.0.0.0'
-    port: int = 80
-    report_chat_id: int
-    channel_chat_id: int
-    comments_chat_id: int
-    timestamp: int = 0
-    post_interval: int = 12
-
-
 class OpenaiSettings(ConfigBase):
     token: SecretStr = Field(alias='OPENAI_TOKEN')
     url: str = Field(alias='OPENAI_URL')
@@ -46,8 +34,16 @@ class TagsSettings(ConfigBase):
     ]
 
 
-class Settings(BaseSettings):
-    bot: BotSettings = Field(default_factory=BotSettings)
+class Settings(ConfigBase):
+    bot_token: SecretStr
+    webhook_domain: str
+    host: str = '0.0.0.0'
+    port: int = 80
+    report_chat_id: int
+    channel_chat_id: int
+    comments_chat_id: int
+    timestamp: int = 0
+    post_interval: int = 12
     openai: OpenaiSettings = Field(default_factory=OpenaiSettings)
     tags: TagsSettings = Field(default_factory=TagsSettings)
 

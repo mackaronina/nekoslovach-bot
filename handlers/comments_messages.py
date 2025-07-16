@@ -8,7 +8,7 @@ from utils.ai_generate import generate_reply_comment_img_and_caption, generate_r
     generate_reply_comment_text
 
 router = Router()
-router.message.filter(F.chat.id == settings.bot.comments_chat_id, F.reply_to_message)
+router.message.filter(F.chat.id == settings.comments_chat_id, F.reply_to_message)
 router.message.middleware(CommentsMiddleware())
 
 

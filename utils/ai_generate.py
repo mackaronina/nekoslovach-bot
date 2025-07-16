@@ -31,7 +31,7 @@ class PollDict(TypedDict):
 
 
 def cur_date() -> str:
-    return datetime.fromtimestamp(time.time() + settings.bot.timestamp).strftime('%d.%m.%Y')
+    return datetime.fromtimestamp(time.time() + settings.timestamp).strftime('%d.%m.%Y')
 
 
 def new_to_text(new: NewModel, new_tag: str) -> str:
@@ -45,7 +45,7 @@ async def get_img_url(message: Message) -> str:
     else:
         file_id = message.sticker.file_id
     file_info = await message.bot.get_file(file_id)
-    return f'https://api.telegram.org/file/bot{settings.bot.token.get_secret_value()}/{file_info.file_path}'
+    return f'https://api.telegram.org/file/bot{settings.bot_token.get_secret_value()}/{file_info.file_path}'
 
 
 def postprocess_comment(text: str) -> str:
