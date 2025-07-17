@@ -1,7 +1,8 @@
 # Telegram bot for managing news channel using AI
 
 This is a simple telegram bot that allows you to generate posts in a news channel of a given topic using AI. The bot
-can generate news, polls, and also respond to comments on them. Channel example: https://t.me/nekoslovach
+can generate news, polls, and also respond to comments on them. Try the bot: https://t.me/nekoslovach_bot. Channel:
+https://t.me/nekoslovach
 
 ![example of usage](screenshots/img1.png)
 
