@@ -48,12 +48,12 @@ async def main() -> None:
     scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=settings.post_interval)
     scheduler.start()
 
-    await bot.send_message(settings.report_chat_id, 'Бот запущен')
     await bot.delete_webhook()
     # Uncomment for polling
     # await dp.start_polling(bot)
     await bot.set_webhook(url=f'{settings.webhook_domain}/{settings.bot_token.get_secret_value()}',
                           drop_pending_updates=True)
+    logging.info('Bot started')
     await uvicorn.Server(uvicorn.Config(app, host=settings.host, port=settings.port)).serve()
 
 
