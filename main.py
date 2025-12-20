@@ -5,13 +5,11 @@ import uvicorn
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.types import Update
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
-from fastapi.requests import Request
-from fastapi.responses import HTMLResponse
 from openai import AsyncOpenAI
 
+from api import webhook
 from config import SETTINGS
 from handlers import private_messages, callbacks, commands, errors, comments_messages
 from utils.jobs import job_post_news
@@ -33,16 +31,9 @@ async def main() -> None:
 
     app = FastAPI()
 
-    async def webhook(request: Request) -> None:
-        update = Update.model_validate(await request.json(), context={'bot': bot})
-        await dp.feed_update(bot, update)
-
-    async def read_root() -> HTMLResponse:
-        return HTMLResponse(content='ok')
-
-    app.add_api_route('/', endpoint=read_root, methods=['GET'])
-    app.add_api_route(f'/{SETTINGS.BOT_TOKEN.get_secret_value()}', endpoint=webhook, methods=['POST'],
-                      include_in_schema=False)
+    app.include_router(webhook.router)
+    app.state.bot = bot
+    app.state.dp = dp
 
     scheduler = AsyncIOScheduler()
     if SETTINGS.AUTO_POSTING:
