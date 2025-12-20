@@ -43,6 +43,7 @@ class Settings(ConfigBase):
     channel_chat_id: int
     comments_chat_id: int
     timestamp: int = 0
+    auto_posting: bool = True
     post_interval: int = 12
     openai: OpenaiSettings = Field(default_factory=OpenaiSettings)
     tags: TagsSettings = Field(default_factory=TagsSettings)

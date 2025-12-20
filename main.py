@@ -45,7 +45,8 @@ async def main() -> None:
                       include_in_schema=False)
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=settings.post_interval)
+    if settings.auto_posting:
+        scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=settings.post_interval)
     scheduler.start()
 
     await bot.delete_webhook()
