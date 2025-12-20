@@ -1,27 +1,27 @@
-from typing import List
-
 from pydantic import SecretStr, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Don't change it
 TG_ANONYMOUS_ID = 777000
 
 
 class ConfigBase(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore",
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore',
                                       case_sensitive=False)
 
 
 class OpenaiSettings(ConfigBase):
-    token: SecretStr = Field(alias='OPENAI_TOKEN')
-    url: str = Field(alias='OPENAI_URL')
-    temperature: float = 1
-    model_name: str
+    model_config = SettingsConfigDict(env_prefix='OPENAI_')
+    TOKEN: SecretStr
+    URL: str = 'https://api.groq.com/openai/v1'
+    TEMPERATURE: float = 1.2
+    MODEL_NAME: str = 'meta-llama/llama-4-maverick-17b-128e-instruct'
 
 
 class TagsSettings(ConfigBase):
-    model_config = SettingsConfigDict(env_prefix='tags_')
-    default: str = 'предложка'
-    all: List[str] = [
+    model_config = SettingsConfigDict(env_prefix='TAGS_')
+    DEFAULT: str = 'предложка'
+    ALL: list[str] = [
         'спорт', 'финансы', 'технологии', 'международные отношения', 'политика', 'общество', 'наука',
         'красота и здоровье', 'шоу-бизнес', 'компьютерные игры', 'погода', 'мнения', 'астрология', 'туризм',
         'военные действия', 'культура', 'фильмы и сериалы', 'интервью', 'историческая правда', 'проишествия',
@@ -35,18 +35,18 @@ class TagsSettings(ConfigBase):
 
 
 class Settings(ConfigBase):
-    bot_token: SecretStr
-    webhook_domain: str
-    host: str = '0.0.0.0'
-    port: int = 80
-    report_chat_id: int
-    channel_chat_id: int
-    comments_chat_id: int
-    timestamp: int = 0
-    auto_posting: bool = True
-    post_interval: int = 12
-    openai: OpenaiSettings = Field(default_factory=OpenaiSettings)
-    tags: TagsSettings = Field(default_factory=TagsSettings)
+    BOT_TOKEN: SecretStr
+    WEBHOOK_DOMAIN: str
+    HOST: str = '0.0.0.0'
+    PORT: int = 8000
+    REPORT_CHAT_ID: int
+    CHANNEL_CHAT_ID: int
+    COMMENTS_CHAT_ID: int
+    TIMESTAMP: int = 0
+    AUTO_POSTING: bool = True
+    POST_INTERVAL: int = 12
+    OPENAI: OpenaiSettings = Field(default_factory=OpenaiSettings)
+    TAGS: TagsSettings = Field(default_factory=TagsSettings)
 
 
-settings = Settings()
+SETTINGS = Settings()

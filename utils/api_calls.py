@@ -2,7 +2,7 @@ import logging
 
 from openai import AsyncOpenAI
 
-from config import settings
+from config import SETTINGS
 from prompts import SYSTEM_PROMPT
 
 
@@ -22,14 +22,14 @@ async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_url: str,
                  {
                      'type': 'image_url',
                      'image_url': {
-                         'url': img_url
+                         'URL': img_url
                      }
                  }
              ]}
         ],
         response_format={'type': response_format},
-        model=settings.openai.model_name,
-        temperature=settings.openai.temperature
+        model=SETTINGS.OPENAI.MODEL_NAME,
+        temperature=SETTINGS.OPENAI.TEMPERATURE
     )
     return chat_completion.choices[0].message.content
 
@@ -44,7 +44,7 @@ async def chat_completion_text(ai_client: AsyncOpenAI, prompt: str, response_for
              'content': prompt}
         ],
         response_format={'type': response_format},
-        model=settings.openai.model_name,
-        temperature=settings.openai.temperature
+        model=SETTINGS.OPENAI.MODEL_NAME,
+        temperature=SETTINGS.OPENAI.TEMPERATURE
     )
     return chat_completion.choices[0].message.content

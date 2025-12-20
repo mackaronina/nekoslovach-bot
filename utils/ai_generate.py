@@ -8,7 +8,7 @@ from typing import TypedDict, List
 from aiogram.types import Message, InputPollOption
 from openai import AsyncOpenAI, BaseModel
 
-from config import settings
+from config import SETTINGS
 from prompts import NEW_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_PROMPT, NEW_TEXT_PROMPT, NEW_TAG_PROMPT, POLL_PROMPT, \
     COMMENT_TEXT_PROMPT, COMMENT_PHOTO_PROMPT, COMMENT_PHOTO_AND_CAPTION_PROMPT
 from utils.api_calls import chat_completion_img, chat_completion_text
@@ -31,7 +31,7 @@ class PollDict(TypedDict):
 
 
 def cur_date() -> str:
-    return datetime.fromtimestamp(time.time() + settings.timestamp).strftime('%d.%m.%Y')
+    return datetime.fromtimestamp(time.time() + SETTINGS.TIMESTAMP).strftime('%d.%m.%Y')
 
 
 def new_to_text(new: NewModel, new_tag: str) -> str:
@@ -45,7 +45,7 @@ async def get_img_url(message: Message) -> str:
     else:
         file_id = message.sticker.file_id
     file_info = await message.bot.get_file(file_id)
-    return f'https://api.telegram.org/file/bot{settings.bot_token.get_secret_value()}/{file_info.file_path}'
+    return f'https://api.telegram.org/file/bot{SETTINGS.BOT_TOKEN.get_secret_value()}/{file_info.file_path}'
 
 
 def postprocess_comment(text: str) -> str:
@@ -74,7 +74,7 @@ async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Mes
         url
     )
     new = NewModel.model_validate_json(content)
-    return new_to_text(new, settings.tags.default)
+    return new_to_text(new, SETTINGS.TAGS.DEFAULT)
 
 
 async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str:
@@ -88,7 +88,7 @@ async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str
         url
     )
     new = NewModel.model_validate_json(content)
-    return new_to_text(new, settings.tags.default)
+    return new_to_text(new, SETTINGS.TAGS.DEFAULT)
 
 
 async def generate_new_from_text(ai_client: AsyncOpenAI, message: Message) -> str:
@@ -101,11 +101,11 @@ async def generate_new_from_text(ai_client: AsyncOpenAI, message: Message) -> st
         )
     )
     new = NewModel.model_validate_json(content)
-    return new_to_text(new, settings.tags.default)
+    return new_to_text(new, SETTINGS.TAGS.DEFAULT)
 
 
 async def generate_new_from_tag(ai_client: AsyncOpenAI) -> str:
-    new_tag = random.choice(settings.tags.all)
+    new_tag = random.choice(SETTINGS.TAGS.ALL)
     content = await chat_completion_text(
         ai_client,
         NEW_TAG_PROMPT.format(
