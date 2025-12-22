@@ -1,8 +1,10 @@
+import base64
 import html
 import json
 import random
 import time
 from datetime import datetime
+from io import BytesIO
 from typing import TypedDict, List
 
 from aiogram.types import Message, InputPollOption
@@ -39,13 +41,15 @@ def new_to_text(new: NewModel, new_tag: str) -> str:
     return f'⚡️<b>{html.escape(new.title)}</b>\n\n{html.escape(new.text)}\n\n#{html.escape(new_tag)}'
 
 
-async def get_img_url(message: Message) -> str:
+async def get_img_as_base64(message: Message) -> str:
+    bot = message.bot
     if message.photo is not None:
         file_id = message.photo[-1].file_id
     else:
         file_id = message.sticker.file_id
-    file_info = await message.bot.get_file(file_id)
-    return f'https://api.telegram.org/file/bot{SETTINGS.BOT_TOKEN.get_secret_value()}/{file_info.file_path}'
+    buffer = BytesIO()
+    await bot.download(file_id, buffer)
+    return base64.b64encode(buffer.getvalue()).decode('utf-8')
 
 
 def postprocess_comment(text: str) -> str:
@@ -63,7 +67,7 @@ def poll_to_dict(poll: PollModel) -> PollDict:
 
 
 async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Message) -> str:
-    url = await get_img_url(message)
+    base64_image = await get_img_as_base64(message)
     content = await chat_completion_img(
         ai_client,
         NEW_PHOTO_AND_CAPTION_PROMPT.format(
@@ -71,21 +75,21 @@ async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Mes
             date=cur_date(),
             schema=json.dumps(NewModel.model_json_schema())
         ),
-        url
+        base64_image
     )
     new = NewModel.model_validate_json(content)
     return new_to_text(new, SETTINGS.TAGS.DEFAULT)
 
 
 async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str:
-    url = await get_img_url(message)
+    base64_image = await get_img_as_base64(message)
     content = await chat_completion_img(
         ai_client,
         NEW_PHOTO_PROMPT.format(
             date=cur_date(),
             schema=json.dumps(NewModel.model_json_schema())
         ),
-        url
+        base64_image
     )
     new = NewModel.model_validate_json(content)
     return new_to_text(new, SETTINGS.TAGS.DEFAULT)
@@ -144,21 +148,21 @@ async def generate_reply_comment_text(ai_client: AsyncOpenAI, message: Message, 
 
 
 async def generate_reply_comment_img(ai_client: AsyncOpenAI, message: Message, post_text: str) -> str:
-    url = await get_img_url(message)
+    base64_image = await get_img_as_base64(message)
     text = await chat_completion_img(
         ai_client,
         COMMENT_PHOTO_PROMPT.format(
             post_text=post_text.replace('\n', ' '),
             user_name=message.from_user.full_name
         ),
-        url,
+        base64_image,
         response_format='text'
     )
     return postprocess_comment(text)
 
 
 async def generate_reply_comment_img_and_caption(ai_client: AsyncOpenAI, message: Message, post_text: str) -> str:
-    url = await get_img_url(message)
+    base64_image = await get_img_as_base64(message)
     text = await chat_completion_img(
         ai_client,
         COMMENT_PHOTO_AND_CAPTION_PROMPT.format(
@@ -166,7 +170,7 @@ async def generate_reply_comment_img_and_caption(ai_client: AsyncOpenAI, message
             user_name=message.from_user.full_name,
             comment_text=message.text or message.caption
         ),
-        url,
+        base64_image,
         response_format='text'
     )
     return postprocess_comment(text)

@@ -6,7 +6,7 @@ from config import SETTINGS
 from prompts import SYSTEM_PROMPT
 
 
-async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_url: str,
+async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, base64_image: str,
                               response_format: str = 'json_object') -> str:
     logging.info(f'Sending prompt: {prompt}')
     chat_completion = await ai_client.chat.completions.create(
@@ -22,7 +22,7 @@ async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, img_url: str,
                  {
                      'type': 'image_url',
                      'image_url': {
-                         'URL': img_url
+                         'url': f'data:image/jpg;base64,{base64_image}'
                      }
                  }
              ]}
