@@ -1,69 +1,17 @@
-import base64
-import html
 import json
 import random
-import time
-from datetime import datetime
-from io import BytesIO
-from typing import TypedDict, List
 
-from aiogram.types import Message, InputPollOption
-from openai import AsyncOpenAI, BaseModel
+from aiogram.types import Message
+from openai import AsyncOpenAI
 
 from config import SETTINGS
 from prompts import NEW_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_PROMPT, NEW_TEXT_PROMPT, NEW_TAG_PROMPT, POLL_PROMPT, \
     COMMENT_TEXT_PROMPT, COMMENT_PHOTO_PROMPT, COMMENT_PHOTO_AND_CAPTION_PROMPT
+from schemas import NewModel, PollModel, PollDict
 from utils.api_calls import chat_completion_img, chat_completion_text
-
-
-class NewModel(BaseModel):
-    title: str
-    text: str
-
-
-class PollModel(BaseModel):
-    question: str
-    options: List[str]
-
-
-class PollDict(TypedDict):
-    question: str
-    options: List[InputPollOption]
-    is_anonymous: bool
-
-
-def cur_date() -> str:
-    return datetime.fromtimestamp(time.time() + SETTINGS.TIMESTAMP).strftime('%d.%m.%Y')
-
-
-def new_to_text(new: NewModel, new_tag: str) -> str:
-    new_tag = new_tag.replace(' ', '_').replace('-', '_')
-    return f'⚡️<b>{html.escape(new.title)}</b>\n\n{html.escape(new.text)}\n\n#{html.escape(new_tag)}'
-
-
-async def get_img_as_base64(message: Message) -> str:
-    bot = message.bot
-    if message.photo is not None:
-        file_id = message.photo[-1].file_id
-    else:
-        file_id = message.sticker.file_id
-    buffer = BytesIO()
-    await bot.download(file_id, buffer)
-    return base64.b64encode(buffer.getvalue()).decode('utf-8')
-
-
-def postprocess_comment(text: str) -> str:
-    text = text.replace("'", '').replace('"', '').strip('. ')
-    return html.escape(text[:1].upper() + text[1:])
-
-
-def poll_to_dict(poll: PollModel) -> PollDict:
-    return {
-        'question': html.escape(poll.question),
-        'options': [InputPollOption(text=html.escape(poll.options[0][:100])),
-                    InputPollOption(text=html.escape(poll.options[1][:100]))],
-        'is_anonymous': True,
-    }
+from utils.date import cur_date
+from utils.images import get_img_as_base64
+from utils.text import new_to_text, postprocess_comment, poll_model_to_dict
 
 
 async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Message) -> str:
@@ -131,7 +79,7 @@ async def generate_poll(ai_client: AsyncOpenAI, new_text: str) -> PollDict:
         )
     )
     poll = PollModel.model_validate_json(content)
-    return poll_to_dict(poll)
+    return poll_model_to_dict(poll)
 
 
 async def generate_reply_comment_text(ai_client: AsyncOpenAI, message: Message, post_text: str) -> str:
