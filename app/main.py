@@ -35,9 +35,9 @@ async def main() -> None:
     app.state.bot = bot
     app.state.dp = dp
 
-    scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler(timezone=SETTINGS.TIME_ZONE)
     if SETTINGS.AUTO_POSTING:
-        scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=SETTINGS.POST_INTERVAL)
+        scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=SETTINGS.POST_INTERVAL_HOURS)
     scheduler.start()
 
     await bot.delete_webhook()

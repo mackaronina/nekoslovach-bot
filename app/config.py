@@ -45,10 +45,10 @@ class Settings(ConfigBase):
     REPORT_CHAT_ID: int
     CHANNEL_CHAT_ID: int
     COMMENTS_CHAT_ID: int
-    TIMESTAMP: int = 0
+    TIME_ZONE: str = 'UTC'
     USE_POLLING: bool = False
     AUTO_POSTING: bool = True
-    POST_INTERVAL: int = 12
+    POST_INTERVAL_HOURS: int = 12
     OPENAI: OpenaiSettings = Field(default_factory=OpenaiSettings)
     TAGS: TagsSettings = Field(default_factory=TagsSettings)
 
