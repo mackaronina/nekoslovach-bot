@@ -41,12 +41,13 @@ async def main() -> None:
     scheduler.start()
 
     await bot.delete_webhook()
-    # Uncomment for polling
-    # await dp.start_polling(bot)
-    await bot.set_webhook(url=f'{SETTINGS.WEBHOOK_DOMAIN}/{SETTINGS.BOT_TOKEN.get_secret_value()}',
-                          drop_pending_updates=True)
     logging.info('Bot started')
-    await uvicorn.Server(uvicorn.Config(app, host=SETTINGS.HOST, port=SETTINGS.PORT)).serve()
+    if SETTINGS.USE_POLLING:
+        await dp.start_polling(bot)
+    else:
+        await bot.set_webhook(url=f'{SETTINGS.WEBHOOK_DOMAIN}/{SETTINGS.BOT_TOKEN.get_secret_value()}',
+                              drop_pending_updates=True)
+        await uvicorn.Server(uvicorn.Config(app, host=SETTINGS.HOST, port=SETTINGS.PORT)).serve()
 
 
 if __name__ == '__main__':

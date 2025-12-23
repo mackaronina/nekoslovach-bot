@@ -43,6 +43,7 @@ class Settings(ConfigBase):
     CHANNEL_CHAT_ID: int
     COMMENTS_CHAT_ID: int
     TIMESTAMP: int = 0
+    USE_POLLING: bool = False
     AUTO_POSTING: bool = True
     POST_INTERVAL: int = 12
     OPENAI: OpenaiSettings = Field(default_factory=OpenaiSettings)
