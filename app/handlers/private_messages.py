@@ -2,9 +2,9 @@ from aiogram import Router, F
 from aiogram.types import Message
 from openai import AsyncOpenAI
 
-from keyboards.post_to_channel import keyboard_post_to_channel
-from middlewares.send_error import SendErrorMiddleware
-from utils.ai_generate import generate_new_from_text, generate_poll, generate_new_from_img_and_caption, \
+from app.keyboards.post_to_channel import keyboard_post_to_channel
+from app.middlewares.send_error import SendErrorMiddleware
+from app.utils.ai_generate import generate_new_from_text, generate_poll, generate_new_from_img_and_caption, \
     generate_new_from_img
 
 router = Router()

@@ -4,14 +4,14 @@ import random
 from aiogram.types import Message
 from openai import AsyncOpenAI
 
-from config import SETTINGS
-from prompts import NEW_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_PROMPT, NEW_TEXT_PROMPT, NEW_TAG_PROMPT, POLL_PROMPT, \
+from app.config import SETTINGS
+from app.prompts import NEW_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_PROMPT, NEW_TEXT_PROMPT, NEW_TAG_PROMPT, POLL_PROMPT, \
     COMMENT_TEXT_PROMPT, COMMENT_PHOTO_PROMPT, COMMENT_PHOTO_AND_CAPTION_PROMPT
-from schemas import NewModel, PollModel, PollDict
-from utils.api_calls import chat_completion_img, chat_completion_text
-from utils.date import cur_date
-from utils.images import get_img_as_base64
-from utils.text import new_to_text, postprocess_comment, poll_model_to_dict
+from app.schemas import NewModel, PollModel, PollDict
+from app.utils.api_calls import chat_completion_img, chat_completion_text
+from app.utils.date import cur_date
+from app.utils.images import get_img_as_base64
+from app.utils.text import new_to_text, postprocess_comment, poll_model_to_dict
 
 
 async def generate_new_from_img_and_caption(ai_client: AsyncOpenAI, message: Message) -> str:

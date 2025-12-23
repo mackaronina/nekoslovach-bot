@@ -3,8 +3,8 @@ from fastapi import APIRouter
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 
-from config import SETTINGS
-from dependencies import CurrentBot, CurrentDispatcher
+from app.config import SETTINGS
+from app.dependencies import CurrentBot, CurrentDispatcher
 
 router = APIRouter()
 

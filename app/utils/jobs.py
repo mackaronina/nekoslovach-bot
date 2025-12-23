@@ -3,8 +3,8 @@ import logging
 from aiogram import Bot
 from openai import AsyncOpenAI
 
-from config import SETTINGS
-from utils.ai_generate import generate_new_from_tag, generate_poll
+from app.config import SETTINGS
+from app.utils.ai_generate import generate_new_from_tag, generate_poll
 
 
 async def job_post_news(bot: Bot, ai_client: AsyncOpenAI) -> None:

@@ -2,7 +2,7 @@ import html
 
 from aiogram.types import InputPollOption
 
-from schemas import NewModel, PollModel, PollDict
+from app.schemas import NewModel, PollModel, PollDict
 
 
 def new_to_text(new: NewModel, new_tag: str) -> str:

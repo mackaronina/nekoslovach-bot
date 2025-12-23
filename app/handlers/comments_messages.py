@@ -2,9 +2,9 @@ from aiogram import Router, F
 from aiogram.types import Message
 from openai import AsyncOpenAI
 
-from config import SETTINGS
-from middlewares.comments import CommentsMiddleware
-from utils.ai_generate import generate_reply_comment_img_and_caption, generate_reply_comment_img, \
+from app.config import SETTINGS
+from app.middlewares.comments import CommentsMiddleware
+from app.utils.ai_generate import generate_reply_comment_img_and_caption, generate_reply_comment_img, \
     generate_reply_comment_text
 
 router = Router()

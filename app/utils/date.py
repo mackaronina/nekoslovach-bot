@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from config import SETTINGS
+from app.config import SETTINGS
 
 
 def cur_date() -> str:

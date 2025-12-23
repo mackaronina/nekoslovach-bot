@@ -30,5 +30,5 @@ https://t.me/nekoslovach
 * Edit file `prompts.py` and fill it with your data. This file contains templates of all prompts that are sent via the
   OpenAI API
 * Run docker container with commands:  
-  `docker build -t <image_name>`  
+  `docker build -t <image_name> .`  
   `docker run <image_name>`

@@ -2,8 +2,8 @@ import logging
 
 from openai import AsyncOpenAI
 
-from config import SETTINGS
-from prompts import SYSTEM_PROMPT
+from app.config import SETTINGS
+from app.prompts import SYSTEM_PROMPT
 
 
 async def chat_completion_img(ai_client: AsyncOpenAI, prompt: str, base64_image: str,

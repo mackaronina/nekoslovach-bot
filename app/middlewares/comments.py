@@ -3,7 +3,7 @@ from typing import Callable, Dict, Any, Awaitable, Optional
 from aiogram import BaseMiddleware
 from aiogram.types import Message
 
-from config import TG_ANONYMOUS_ID
+from app.config import TG_ANONYMOUS_ID
 
 
 class CommentsMiddleware(BaseMiddleware):
