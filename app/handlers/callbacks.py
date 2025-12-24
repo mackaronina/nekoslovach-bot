@@ -1,26 +1,30 @@
-import logging
-
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
 from app.config import SETTINGS
+from app.keyboards.posting import keyboard_post_to_channel
+from app.utils.log import log_posting
 
 router = Router()
 
 
-@router.callback_query(F.data == 'delete')
-async def delete_post(callback: CallbackQuery) -> None:
+@router.callback_query(F.data == 'cancel')
+async def cancel_post(callback: CallbackQuery) -> None:
     await callback.message.delete()
     await callback.answer('Удалено')
 
 
 @router.callback_query(F.data == 'send')
 async def send_post(callback: CallbackQuery) -> None:
-    if callback.message.text is not None or callback.message.caption is not None:
-        logging.info(
-            f'User {callback.from_user.id} posting new with text: {callback.message.text or callback.message.caption}')
-    elif callback.message.poll is not None:
-        logging.info(f'User {callback.from_user.id} posting poll with question: {callback.message.poll.question}')
+    log_posting(callback)
     await callback.message.copy_to(SETTINGS.CHANNEL_CHAT_ID)
-    await callback.message.delete()
     await callback.answer('Отправлено')
+    await callback.message.delete()
+
+
+@router.callback_query(F.data == 'send_confirm')
+async def send_to_confirm(callback: CallbackQuery) -> None:
+    log_posting(callback, True)
+    await callback.message.copy_to(SETTINGS.ADMIN_CHAT_ID, reply_markup=keyboard_post_to_channel())
+    await callback.answer('Отправлено на рассмотрение', show_alert=True)
+    await callback.message.delete()

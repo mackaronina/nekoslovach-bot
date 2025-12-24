@@ -12,6 +12,7 @@ https://t.me/nekoslovach
   messages. The generated news consists of a title and text. After generation, the user can post the news to the channel
   using the check mark button
 * Generating a poll for each news item. The poll consists of a question and two answer options
+* Sending posts from users to admins for review before posting
 * Automatic posting to the channel every N hours. The topic of the news and the poll are selected randomly from the list
   of hashtags
 * Generating responses to comments in a channel. Unfortunately, the bot cannot support a meaningful dialogue

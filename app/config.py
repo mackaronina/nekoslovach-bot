@@ -43,11 +43,12 @@ class Settings(ConfigBase):
     WEBHOOK_DOMAIN: str
     HOST: str = '0.0.0.0'
     PORT: int = 8000
-    REPORT_CHAT_ID: int
+    ADMIN_CHAT_ID: int
     CHANNEL_CHAT_ID: int
     COMMENTS_CHAT_ID: int
     TIME_ZONE: str = 'UTC'
     USE_POLLING: bool = False
+    POSTING_CONFIRMATION: bool = False
     AUTO_POSTING: bool = True
     POST_INTERVAL_HOURS: int = 12
     OPENAI: OpenaiSettings = Field(default_factory=OpenaiSettings)
