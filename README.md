@@ -11,6 +11,7 @@ https://t.me/nekoslovach
 * Generating using AI news from a picture, text or picture with a caption. Just send any message to the bot in private
   messages. The generated news consists of a title and text. After generation, the user can post the news to the channel
   using the check mark button
+* Selecting tags using AI for news from a list of tags
 * Generating a poll for each news item. The poll consists of a question and two answer options
 * Sending posts from users to admins for review before posting
 * Automatic posting to the channel every N hours. The topic of the news and the poll are selected randomly from the list
