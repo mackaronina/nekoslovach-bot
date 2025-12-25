@@ -30,22 +30,23 @@ COMMENT_SCHEMA_DESCRIPTION = f'Твой ответ должен быть в фо
 # Prompt for generating news from image. Must take parameters {date}, {schema_description}.
 # The link to the image will be added to the prompt automatically
 NEW_PHOTO_PROMPT = 'Напиши новость к которой идеально подойдёт это изображение. Учти что сегодня {date}, но не \
-добавляй эту дату в текст. Твоя новость должна быть сенсационной, уникальной, креативной, провокационной, забавной. \
-{schema_description}'
+добавляй эту дату в текст. Твоя новость должна быть содержательной, сенсационной, уникальной, креативной, \
+провокационной, забавной. {schema_description}'
 
 # Prompt for generating news from image with text. Must take parameters {title}, {date}, {schema_description}.
 # The link to the image will be added to the prompt automatically
 NEW_PHOTO_AND_TITLE_PROMPT = 'Напиши новость к которой идеально подойдёт это изображение. Новость должна иметь \
-заголовок "{title}". Учти что сегодня {date}, но не добавляй эту дату в текст. Твоя новость должна быть сенсационной, \
-уникальной, креативной, провокационной, забавной. {schema_description}'
+заголовок "{title}". Учти что сегодня {date}, но не добавляй эту дату в текст. Твоя новость должна быть содержательной, \
+сенсационной, уникальной, креативной, провокационной, забавной. {schema_description}'
 
 # Prompt for generating news from title. Must take parameters {title}, {date}, {schema_description}
 NEW_TITLE_PROMPT = 'Напиши новость с заголовком "{title}". Учти что сегодня {date}, но не добавляй эту дату в текст. \
-Твоя новость должна быть сенсационной, уникальной, креативной, провокационной, забавной. {schema_description}'
+Твоя новость должна быть содержательной, сенсационной, уникальной, креативной, провокационной, забавной. \
+{schema_description}'
 
 # Prompt for generating news from topic. Must take parameters {topic}, {date}, {schema_description}
 NEW_TOPIC_PROMPT = 'Напиши новость на тему "{topic}". Учти что сегодня {date}, но не добавляй эту дату в текст. Твоя \
-новость должна быть сенсационной, уникальной, креативной, провокационной, забавной. {schema_description}'
+новость должна быть содержательной, сенсационной, уникальной, креативной, провокационной, забавной. {schema_description}'
 
 # Prompt for generating a poll from the news text. Must take parameters {new_text}, {schema_description}
 POLL_PROMPT = 'Составь опрос к новости с текстом "{new_text}". Опрос должен содержать ровно два варианта ответа. \
