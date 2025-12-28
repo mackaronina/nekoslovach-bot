@@ -25,7 +25,7 @@ async def generate_new_from_img_and_title(ai_client: AsyncOpenAI, message: Messa
         base64_image
     )
     new = NewModel.model_validate_json(content)
-    new.tags.append(SETTINGS.TAGS.BY_USER)
+    new.tags.append(SETTINGS.TAG_BY_USER)
     return str(new)
 
 
@@ -40,7 +40,7 @@ async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str
         base64_image
     )
     new = NewModel.model_validate_json(content)
-    new.tags.append(SETTINGS.TAGS.BY_USER)
+    new.tags.append(SETTINGS.TAG_BY_USER)
     return str(new)
 
 
@@ -54,12 +54,12 @@ async def generate_new_from_title(ai_client: AsyncOpenAI, message: Message) -> s
         )
     )
     new = NewModel.model_validate_json(content)
-    new.tags.append(SETTINGS.TAGS.BY_USER)
+    new.tags.append(SETTINGS.TAG_BY_USER)
     return str(new)
 
 
 async def generate_new_from_topic(ai_client: AsyncOpenAI) -> str:
-    topic = random.choice(SETTINGS.TAGS.ALL)
+    topic = random.choice(SETTINGS.NEW_TOPICS)
     content = await chat_completion_text(
         ai_client,
         NEW_TOPIC_PROMPT.format(

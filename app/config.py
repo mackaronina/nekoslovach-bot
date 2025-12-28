@@ -21,10 +21,10 @@ class OpenaiSettings(ConfigBase):
     MODEL_NAME: str = 'meta-llama/llama-4-maverick-17b-128e-instruct'
 
 
-class TagsSettings(ConfigBase):
-    model_config = SettingsConfigDict(env_prefix='TAGS_')
-    BY_USER: str = 'предложка'
-    ALL: list[str] = [
+class Settings(ConfigBase):
+    BOT_TOKEN: SecretStr
+    TAG_BY_USER: str = '#предложка'
+    NEW_TOPICS: list[str] = [
         'спорт', 'финансы', 'технологии', 'международные отношения', 'политика', 'общество', 'наука',
         'красота и здоровье', 'шоу-бизнес', 'компьютерные игры', 'погода', 'мнения', 'астрология', 'туризм',
         'военные действия', 'культура', 'фильмы и сериалы', 'интервью', 'историческая правда', 'проишествия',
@@ -37,10 +37,6 @@ class TagsSettings(ConfigBase):
         'саморазвитие', 'репортаж', 'права человека', 'искусство', 'музыка', 'кино', 'санкции', 'тренды',
         'праздники', 'грустная история'
     ]
-
-
-class Settings(ConfigBase):
-    BOT_TOKEN: SecretStr
     WEBHOOK_DOMAIN: str
     HOST: str = '0.0.0.0'
     PORT: int = 8000
@@ -53,7 +49,6 @@ class Settings(ConfigBase):
     AUTO_POSTING: bool = True
     POST_INTERVAL_HOURS: int = 12
     OPENAI: OpenaiSettings = Field(default_factory=OpenaiSettings)
-    TAGS: TagsSettings = Field(default_factory=TagsSettings)
 
 
 SETTINGS = Settings()
