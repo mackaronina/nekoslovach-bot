@@ -18,7 +18,7 @@ class OpenaiSettings(ConfigBase):
     TOKEN: SecretStr
     URL: str = 'https://api.groq.com/openai/v1'
     TEMPERATURE: float = 1.2
-    MODEL_NAME: str = 'meta-llama/llama-4-maverick-17b-128e-instruct'
+    MODEL_NAME: str = 'meta-llama/llama-4-scout-17b-16e-instruct'
 
 
 class Settings(ConfigBase):
