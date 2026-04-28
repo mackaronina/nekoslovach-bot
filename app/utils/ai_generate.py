@@ -5,8 +5,7 @@ from openai import AsyncOpenAI
 
 from app.config import SETTINGS
 from app.prompts import NEW_PHOTO_PROMPT, POLL_PROMPT, COMMENT_TEXT_PROMPT, COMMENT_PHOTO_PROMPT, \
-    COMMENT_PHOTO_AND_CAPTION_PROMPT, NEW_SCHEMA_DESCRIPTION, POLL_SCHEMA_DESCRIPTION, COMMENT_SCHEMA_DESCRIPTION, \
-    NEW_PHOTO_AND_TITLE_PROMPT, NEW_TITLE_PROMPT, NEW_TOPIC_PROMPT
+    COMMENT_PHOTO_AND_CAPTION_PROMPT, NEW_PHOTO_AND_TITLE_PROMPT, NEW_TITLE_PROMPT, NEW_TOPIC_PROMPT
 from app.schemas import NewModel, PollModel, PollDict, CommentModel
 from app.utils.api_calls import chat_completion_img, chat_completion_text
 from app.utils.date import cur_date
@@ -19,8 +18,7 @@ async def generate_new_from_img_and_title(ai_client: AsyncOpenAI, message: Messa
         ai_client,
         NEW_PHOTO_AND_TITLE_PROMPT.format(
             title=message.text or message.caption,
-            date=cur_date(),
-            schema_description=NEW_SCHEMA_DESCRIPTION
+            date=cur_date()
         ),
         base64_image
     )
@@ -34,8 +32,7 @@ async def generate_new_from_img(ai_client: AsyncOpenAI, message: Message) -> str
     content = await chat_completion_img(
         ai_client,
         NEW_PHOTO_PROMPT.format(
-            date=cur_date(),
-            schema_description=NEW_SCHEMA_DESCRIPTION
+            date=cur_date()
         ),
         base64_image
     )
@@ -49,8 +46,7 @@ async def generate_new_from_title(ai_client: AsyncOpenAI, message: Message) -> s
         ai_client,
         NEW_TITLE_PROMPT.format(
             title=message.text or message.caption,
-            date=cur_date(),
-            schema_description=NEW_SCHEMA_DESCRIPTION
+            date=cur_date()
         )
     )
     new = NewModel.model_validate_json(content)
@@ -64,8 +60,7 @@ async def generate_new_from_topic(ai_client: AsyncOpenAI) -> str:
         ai_client,
         NEW_TOPIC_PROMPT.format(
             topic=topic,
-            date=cur_date(),
-            schema_description=NEW_SCHEMA_DESCRIPTION
+            date=cur_date()
         )
     )
     new = NewModel.model_validate_json(content)
@@ -76,8 +71,7 @@ async def generate_poll(ai_client: AsyncOpenAI, new_text: str) -> PollDict:
     content = await chat_completion_text(
         ai_client,
         POLL_PROMPT.format(
-            new_text=new_text.replace('\n', ' '),
-            schema_description=POLL_SCHEMA_DESCRIPTION
+            new_text=new_text.replace('\n', ' ')
         )
     )
     poll = PollModel.model_validate_json(content)
@@ -90,8 +84,7 @@ async def generate_reply_comment_text(ai_client: AsyncOpenAI, message: Message, 
         COMMENT_TEXT_PROMPT.format(
             post_text=post_text.replace('\n', ' '),
             user_name=message.from_user.full_name,
-            comment_text=message.text or message.caption,
-            schema_description=COMMENT_SCHEMA_DESCRIPTION
+            comment_text=message.text or message.caption
         )
     )
     comment = CommentModel.model_validate_json(content)
@@ -104,8 +97,7 @@ async def generate_reply_comment_img(ai_client: AsyncOpenAI, message: Message, p
         ai_client,
         COMMENT_PHOTO_PROMPT.format(
             post_text=post_text.replace('\n', ' '),
-            user_name=message.from_user.full_name,
-            schema_description=COMMENT_SCHEMA_DESCRIPTION
+            user_name=message.from_user.full_name
         ),
         base64_image,
     )
@@ -120,8 +112,7 @@ async def generate_reply_comment_img_and_caption(ai_client: AsyncOpenAI, message
         COMMENT_PHOTO_AND_CAPTION_PROMPT.format(
             post_text=post_text.replace('\n', ' '),
             user_name=message.from_user.full_name,
-            comment_text=message.text or message.caption,
-            schema_description=COMMENT_SCHEMA_DESCRIPTION
+            comment_text=message.text or message.caption
         ),
         base64_image,
     )
