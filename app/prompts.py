@@ -31,26 +31,25 @@ COMMENT_SCHEMA_DESCRIPTION = f'Твой ответ должен быть в фо
 
 # Prompt for generating news from image. Must take parameters {date}.
 # The link to the image will be added to the prompt automatically
-NEW_PHOTO_PROMPT = 'Напиши новость к которой идеально подойдёт это изображение. Учти что сегодня {date}, но не \
-добавляй эту дату в текст. Твоя новость должна быть максимально содержательной, сенсационной, уникальной, креативной, \
-провокационной, забавной. ' + escape_brackets(NEW_SCHEMA_DESCRIPTION)
+NEW_PHOTO_PROMPT = ('Напиши новость к которой идеально подойдёт это изображение. Учти что сегодня {date}, но не \
+добавляй эту дату в текст. Твоя новость должна быть сенсационной, уникальной, креативной, провокационной, забавной. '
+                    + escape_brackets(NEW_SCHEMA_DESCRIPTION))
 
 # Prompt for generating news from image with text. Must take parameters {title}, {date}.
 # The link to the image will be added to the prompt automatically
 NEW_PHOTO_AND_TITLE_PROMPT = 'Напиши новость к которой идеально подойдёт это изображение. Новость должна иметь \
-заголовок "{title}". Учти что сегодня {date}, но не добавляй эту дату в текст. Твоя новость должна быть максимально \
-содержательной, сенсационной, уникальной, креативной, провокационной, забавной. ' + escape_brackets(
-    NEW_SCHEMA_DESCRIPTION)
+заголовок "{title}". Учти что сегодня {date}, но не добавляй эту дату в текст. Твоя новость должна быть сенсационной, \
+уникальной, креативной, провокационной, забавной. ' + escape_brackets(NEW_SCHEMA_DESCRIPTION)
 
 # Prompt for generating news from title. Must take parameters {title}, {date}
-NEW_TITLE_PROMPT = ('Напиши новость с заголовком "{title}". Учти что сегодня {date}, но не добавляй эту дату в текст. \
-Твоя новость должна быть максимально содержательной, сенсационной, уникальной, креативной, провокационной, забавной. '
-                    + escape_brackets(NEW_SCHEMA_DESCRIPTION))
+NEW_TITLE_PROMPT = 'Напиши новость с заголовком "{title}". Учти что сегодня {date}, но не добавляй эту дату в текст. \
+Твоя новость должна быть сенсационной, уникальной, креативной, провокационной, забавной. ' + escape_brackets(
+    NEW_SCHEMA_DESCRIPTION)
 
 # Prompt for generating news from topic. Must take parameters {topic}, {date}
-NEW_TOPIC_PROMPT = ('Напиши новость на тему "{topic}". Учти что сегодня {date}, но не добавляй эту дату в текст. Твоя \
-новость должна быть максимально содержательной, сенсационной, уникальной, креативной, провокационной, забавной. '
-                    + escape_brackets(NEW_SCHEMA_DESCRIPTION))
+NEW_TOPIC_PROMPT = 'Напиши новость на тему "{topic}". Учти что сегодня {date}, но не добавляй эту дату в текст. Твоя \
+новость должна быть сенсационной, уникальной, креативной, провокационной, забавной. ' + escape_brackets(
+    NEW_SCHEMA_DESCRIPTION)
 
 # Prompt for generating a poll from the news text. Must take parameters {new_text}
 POLL_PROMPT = 'Составь опрос к новости с текстом "{new_text}". Опрос должен содержать ровно два варианта ответа. \
