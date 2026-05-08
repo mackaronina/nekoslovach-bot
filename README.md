@@ -12,7 +12,7 @@ https://t.me/nekoslovach
   messages. The generated news consists of a title, main text and a list of tags. The generated news consists of a title
   and text. After generation, the user can post the news to the channel using the check mark button
 * Generating a poll for each news item. The poll consists of a question and two answer options
-* Sending posts from users to admins for review before posting
+* Sending posts from users to admins for review before posting. Possibility for admins to ban a user
 * Automatic posting to the channel every N hours. The topic of the news and the poll are selected randomly from the list
   of hashtags
 * Generating responses to comments in a channel. Unfortunately, the bot cannot support a meaningful dialogue
@@ -24,10 +24,14 @@ https://t.me/nekoslovach
 * Docker (containerization)
 * OpenAI API (to access LLM models)
 * FastAPI (web server for webhook)
+* PostgreSQL (Relational database)
+* SQLAlchemy 2.x (Object–relational mapper (ORM) for database interactions)
 
 ### Installation
 
-* Edit file `example.env` and fill it with your data, then rename it to `.env`. This file contains all the bot settings
+* Start the PostgreSQL database using any method
+* Edit file `example.env` and fill it with your data including the data for connecting to the database, then rename it
+  to `.env`. This file contains all the bot settings
 * Edit file `prompts.py` and fill it with your data. This file contains templates of all prompts that are sent via the
   OpenAI API
 * Run docker container with commands:  

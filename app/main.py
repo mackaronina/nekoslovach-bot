@@ -11,6 +11,7 @@ from openai import AsyncOpenAI
 
 from app.api import webhook
 from app.config import SETTINGS
+from app.database import create_tables
 from app.handlers import private_messages, commands, errors, callbacks, comments_messages
 from app.utils.jobs import job_post_news
 
@@ -39,6 +40,8 @@ async def main() -> None:
     if SETTINGS.AUTO_POSTING:
         scheduler.add_job(job_post_news, 'interval', (bot, ai_client), hours=SETTINGS.POST_INTERVAL_HOURS)
     scheduler.start()
+
+    await create_tables()
 
     await bot.delete_webhook()
     logging.info('Bot started')

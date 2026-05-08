@@ -4,6 +4,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import Message
 
 from app.config import TG_ANONYMOUS_ID
+from app.utils.text import post_to_text
 
 
 class CommentsMiddleware(BaseMiddleware):
@@ -29,9 +30,3 @@ class CommentsMiddleware(BaseMiddleware):
         reply_id = await handler(message, data)
         comment_ids[post_id].append(reply_id)
         return reply_id
-
-
-def post_to_text(message: Message) -> str:
-    if message.poll is not None:
-        return f'Опрос. {message.poll.question}\n1. {message.poll.options[0].text}\n2. {message.poll.options[1].text}'
-    return message.text or message.caption

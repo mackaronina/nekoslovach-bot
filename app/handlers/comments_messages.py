@@ -3,6 +3,7 @@ from aiogram.types import Message
 from openai import AsyncOpenAI
 
 from app.config import SETTINGS
+from app.middlewares.check_ban import CheckBanMiddleware
 from app.middlewares.comments import CommentsMiddleware
 from app.utils.ai_generate import generate_reply_comment_img_and_caption, generate_reply_comment_img, \
     generate_reply_comment_text
@@ -10,6 +11,7 @@ from app.utils.ai_generate import generate_reply_comment_img_and_caption, genera
 router = Router()
 router.message.filter(F.chat.id == SETTINGS.COMMENTS_CHAT_ID, F.reply_to_message)
 router.message.middleware(CommentsMiddleware())
+router.message.middleware(CheckBanMiddleware())
 
 
 @router.message(F.photo, F.caption)

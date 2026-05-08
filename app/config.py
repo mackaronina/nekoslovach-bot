@@ -21,6 +21,19 @@ class OpenaiSettings(ConfigBase):
     MODEL_NAME: str = 'meta-llama/llama-4-scout-17b-16e-instruct'
 
 
+class PostgresSettings(ConfigBase):
+    model_config = SettingsConfigDict(env_prefix='POSTGRES_')
+    USER: str
+    PASSWORD: SecretStr
+    HOST: str
+    PORT: int
+    NAME: str
+
+    def get_url(self) -> str:
+        return (f'postgresql+asyncpg://{self.USER}:{self.PASSWORD.get_secret_value()}'
+                f'@{self.HOST}:{self.PORT}/{self.NAME}')
+
+
 class Settings(ConfigBase):
     BOT_TOKEN: SecretStr
     TAG_BY_USER: str = '#предложка'
@@ -48,6 +61,9 @@ class Settings(ConfigBase):
     POSTING_CONFIRMATION: bool = False
     AUTO_POSTING: bool = True
     POST_INTERVAL_HOURS: int = 12
+    USE_SQLITE: bool = False
+    SQLITE_URL: str = 'sqlite+aiosqlite:///db.sqlite3'
+    POSTGRES: PostgresSettings = Field(default_factory=PostgresSettings)
     OPENAI: OpenaiSettings = Field(default_factory=OpenaiSettings)
 
 

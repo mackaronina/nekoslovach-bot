@@ -1,14 +1,6 @@
+from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-from app.config import SETTINGS
-
-
-def get_posting_keyboard() -> InlineKeyboardMarkup:
-    if SETTINGS.POSTING_CONFIRMATION:
-        return keyboard_post_to_channel_with_confirmation()
-    else:
-        return keyboard_post_to_channel()
 
 
 def keyboard_post_to_channel() -> InlineKeyboardMarkup:
@@ -20,10 +12,15 @@ def keyboard_post_to_channel() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def keyboard_post_to_channel_with_confirmation() -> InlineKeyboardMarkup:
+def keyboard_admin_confirmation(user_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(text='✅', callback_data='send_confirm'),
-        InlineKeyboardButton(text='❌', callback_data='cancel')
-    )
+    builder.button(text='✅', callback_data=AdminConfirmCallbackFactory(action='accept', user_id=user_id)),
+    builder.button(text='❌', callback_data=AdminConfirmCallbackFactory(action='decline', user_id=user_id)),
+    builder.button(text='🔐 Забанить', callback_data=AdminConfirmCallbackFactory(action='ban', user_id=user_id))
+    builder.adjust(2)
     return builder.as_markup()
+
+
+class AdminConfirmCallbackFactory(CallbackData, prefix='admin'):
+    action: str
+    user_id: int
