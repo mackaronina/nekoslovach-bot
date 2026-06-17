@@ -4,6 +4,7 @@ from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 
 from app.config import SETTINGS
+from app.database import ping_db
 from app.dependencies import CurrentBot, CurrentDispatcher
 
 router = APIRouter()
@@ -18,3 +19,12 @@ async def webhook(request: Request, bot: CurrentBot, dispatcher: CurrentDispatch
 @router.get('/')
 async def read_root() -> HTMLResponse:
     return HTMLResponse(content='Main page')
+
+
+# Used for debug
+@router.get('/ping')
+async def ping_database() -> HTMLResponse:
+    if await ping_db():
+        return HTMLResponse(content='The database is working')
+    else:
+        return HTMLResponse(content='The database is not working')

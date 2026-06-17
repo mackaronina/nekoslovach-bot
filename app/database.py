@@ -2,14 +2,13 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, func, JSON
+from sqlalchemy import BigInteger, func, JSON, text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.config import SETTINGS
 
-engine = create_async_engine(SETTINGS.POSTGRES.get_url() if not SETTINGS.USE_SQLITE else SETTINGS.SQLITE_URL,
-                             pool_recycle=3600)
+engine = create_async_engine(SETTINGS.POSTGRES.get_url() if not SETTINGS.USE_SQLITE else SETTINGS.SQLITE_URL)
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -32,6 +31,15 @@ class User(Base):
 async def create_tables() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+
+async def ping_db() -> bool:
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text('SELECT 1'))
+        return True
+    except:
+        return False
 
 
 def connection(method: Callable) -> Callable:
